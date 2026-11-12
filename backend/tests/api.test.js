@@ -121,7 +121,7 @@ test('1. Healthcheck retorna ok y base conectada', async () => {
 test('2. Login 5 roles y Registro menor con cumplimiento LPDP (Ley 29733)', async () => {
   const dir = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'director@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'director@forcafitness.pe', password: 'Forca2025!' },
   });
   assert.equal(dir.status, 200);
   assert.equal(dir.data.usuario.rol, 'Director');
@@ -135,7 +135,7 @@ test('2. Login 5 roles y Registro menor con cumplimiento LPDP (Ley 29733)', asyn
   ]) {
     const r = await req('/api/auth/login', {
       method: 'POST',
-      body: { email, password: 'Forca2026!' },
+      body: { email, password: 'Forca2025!' },
     });
     assert.equal(r.status, 200);
     assert.equal(r.data.usuario.rol, expectedRol);
@@ -177,7 +177,7 @@ test('2. Login 5 roles y Registro menor con cumplimiento LPDP (Ley 29733)', asyn
 test('3. Control atómico de aforo (máx 18 por tatami) y lista de espera', async () => {
   const alu = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'alumno@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'alumno@forcafitness.pe', password: 'Forca2025!' },
   });
   const token = alu.data.token;
 
@@ -207,7 +207,7 @@ test('3. Control atómico de aforo (máx 18 por tatami) y lista de espera', asyn
 test('4. Pago Yape QR auto-conciliado + Comprobante SUNAT UBL 2.1 + Despacho Combo AFF', async () => {
   const alu = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'diego.torres@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'diego.torres@forcafitness.pe', password: 'Forca2025!' },
   });
   const tokenAlu = alu.data.token;
 
@@ -246,7 +246,7 @@ test('4. Pago Yape QR auto-conciliado + Comprobante SUNAT UBL 2.1 + Despacho Com
   // Recepcionista despacha el Combo AFF de Diego -> descuenta inventario y crea Kárdex
   const rec = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'recepcion@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'recepcion@forcafitness.pe', password: 'Forca2025!' },
   });
   const desp = await req('/api/inventario/despachar-combo', {
     method: 'POST',
@@ -259,7 +259,7 @@ test('4. Pago Yape QR auto-conciliado + Comprobante SUNAT UBL 2.1 + Despacho Com
 test('5. Staff Profesor: Validación QR en tatami + Ascenso de Grado', async () => {
   const prof = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'profesor@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'profesor@forcafitness.pe', password: 'Forca2025!' },
   });
   const tokenProf = prof.data.token;
 
@@ -282,7 +282,7 @@ test('5. Staff Profesor: Validación QR en tatami + Ascenso de Grado', async () 
 test('6. Seguridad DVR NTP Sync + Analítica BI KPIs + Agente IA MCP', async () => {
   const dir = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'director@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'director@forcafitness.pe', password: 'Forca2025!' },
   });
   const tokenDir = dir.data.token;
 
@@ -396,7 +396,7 @@ test('7. Aforo estricto 18/18 tatami, bloqueo 19no, lista de espera y promoción
 test('8. Tesorería confirma pago pendiente + UBL XML + DVR SHA-256 + Campaña CRM', async () => {
   const alu = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'alumno@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'alumno@forcafitness.pe', password: 'Forca2025!' },
   });
   const pendingPay = await req('/api/pagos', {
     method: 'POST',
@@ -416,7 +416,7 @@ test('8. Tesorería confirma pago pendiente + UBL XML + DVR SHA-256 + Campaña C
 
   const tes = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'tesorero@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'tesorero@forcafitness.pe', password: 'Forca2025!' },
   });
   const conf = await req(`/api/pagos/${pendingPay.data.id}/confirmar`, {
     method: 'PUT',
@@ -434,7 +434,7 @@ test('8. Tesorería confirma pago pendiente + UBL XML + DVR SHA-256 + Campaña C
 
   const dir = await req('/api/auth/login', {
     method: 'POST',
-    body: { email: 'director@forcafitness.pe', password: 'Forca2026!' },
+    body: { email: 'director@forcafitness.pe', password: 'Forca2025!' },
   });
   const inc = await req('/api/seguridad/incidentes', {
     method: 'POST',
@@ -546,7 +546,7 @@ test('10. Mercado Pago Checkout Pro + Validación Webhook x-signature HMAC-SHA25
   try {
     const alu = await req('/api/auth/login', {
       method: 'POST',
-      body: { email: 'alumno@forcafitness.pe', password: 'Forca2026!' },
+      body: { email: 'alumno@forcafitness.pe', password: 'Forca2025!' },
     });
     assert.equal(alu.status, 200);
 
