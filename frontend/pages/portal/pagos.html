@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout y Pago — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1050px;margin:0 auto;padding:26px 28px;}
+    .page-title{font-size:26px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:20px;}
+    .cols{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:14px;font-weight:700;color:#111;margin-bottom:14px;}
+    .metodos{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .metodo{border:2px solid #e5e7eb;border-radius:10px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:10px;}
+    .metodo.selected{border-color:#0d2d5e;background:#eff6ff;}
+    .metodo-label{font-size:13px;font-weight:700;}
+    .metodo-sub{font-size:11px;color:#6b7280;}
+    .qr-yape-box{background:#faf5ff;border:1.5px solid #d8b4fe;border-radius:10px;padding:14px;margin-top:12px;display:flex;gap:14px;align-items:center;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;color:#374151;margin-bottom:4px;}
+    .fgroup input,.fgroup select{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;}
+    .summary-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    .summary-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid #f3f4f6;}
+    .btn-pay{width:100%;background:linear-gradient(135deg,#0d2d5e,#1e40af);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:13px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    @media (max-width:850px){.cols,.metodos,.form-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>TESORERÍA Y PASARELA</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar" onclick="location.href='perfil.html'">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Checkout y Facturación SUNAT</h1>
+    <p class="page-sub">Conciliación automática vía Webhook para Yape/Plin y Tarjetas, con emisión inmediata UBL 2.1.</p>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="card-title">💳 1. Método de Pago</div>
+          <div class="metodos">
+            <div class="metodo selected" id="m-yape" onclick="selMetodo('yape')">
+              <div style="font-size:22px;">📱</div>
+              <div><div class="metodo-label">Yape / Plin QR</div><div class="metodo-sub">Conciliación automática al instante</div></div>
+            </div>
+            <div class="metodo" id="m-tarjeta" onclick="selMetodo('tarjeta')">
+              <div style="font-size:22px;">💳</div>
+              <div><div class="metodo-label">Tarjeta Crédito/Débito</div><div class="metodo-sub">Culqi / Mercado Pago PCI-DSS</div></div>
+            </div>
+            <div class="metodo" id="m-transferencia" onclick="selMetodo('transferencia')">
+              <div style="font-size:22px;">🏦</div>
+              <div><div class="metodo-label">Transferencia BCP/BBVA</div><div class="metodo-sub">Validación por Tesorería</div></div>
+            </div>
+            <div class="metodo" id="m-efectivo" onclick="selMetodo('efectivo')">
+              <div style="font-size:22px;">💵</div>
+              <div><div class="metodo-label">Efectivo en Sede</div><div class="metodo-sub">Pago presencial en recepción</div></div>
+            </div>
+          </div>
+
+          <div class="qr-yape-box" id="yapeQrBox">
+            <div id="yapeQrSvg"></div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#6b21a8;">QR Dinámico Yape / Plin</div>
+              <div style="font-size:12px;color:#4c1d95;margin-top:3px;">Al confirmar, el webhook bancario concilia automáticamente tu abono sin enviar capturas por WhatsApp.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧾 2. Comprobante Electrónico SUNAT (UBL 2.1)</div>
+          <div class="form-row">
+            <div class="fgroup">
+              <label>Tipo de Comprobante</label>
+              <select id="tipoComp" onchange="toggleFactura()">
+                <option value="Boleta">Boleta de Venta Electrónica (B001)</option>
+                <option value="Factura">Factura Electrónica con RUC (F001)</option>
+              </select>
+            </div>
+            <div class="fgroup">
+              <label>Email de envío PDF/XML</label>
+              <input type="email" id="inpEmail" readonly/>
+            </div>
+          </div>
+          <div class="form-row" id="facturaFields" style="display:none;">
+            <div class="fgroup"><label>RUC (11 dígitos) *</label><input type="text" id="inpRuc" maxlength="11" placeholder="20612345678"/></div>
+            <div class="fgroup"><label>Razón Social *</label><input type="text" id="inpRazon" placeholder="Empresa S.A.C."/></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div style="font-size:15px;font-weight:800;color:#0d2d5e;margin-bottom:12px;">📄 Resumen del Pedido</div>
+        <div class="summary-row"><span>Alumno</span><strong id="sumNombre">—</strong></div>
+        <div class="summary-row"><span>Concepto</span><strong id="sumConcepto">—</strong></div>
+        <div class="summary-row"><span>Disciplina</span><strong id="sumDisc">—</strong></div>
+        <div class="summary-row"><span>Sede</span><strong id="sumSede">—</strong></div>
+        <div class="summary-row"><span>Método</span><strong id="sumMetodo">Yape / Plin QR</strong></div>
+        <div class="summary-row"><span>Subtotal (Base)</span><strong id="sumSub">S/. 0.00</strong></div>
+        <div class="summary-row"><span>IGV (18%)</span><strong id="sumIgv">S/. 0.00</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:2px solid #0d2d5e;">
+          <strong style="color:#0d2d5e;">Total a Pagar</strong>
+          <strong style="font-size:24px;color:#0d2d5e;" id="sumTotal">S/. 150.00</strong>
+        </div>
+        <button class="btn-pay" id="btnPagar" onclick="procesarPago()">Confirmar y Emitir Comprobante →</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>FORCA &amp; FITNESS S.A.C. · Surco · La Molina · San Borja · Versión 2.5.0</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script>
+    requireRol(['Alumno', 'Director', 'Recepcionista']);
+    initNav();
+
+    var usuario = _getUsuario();
+    var orden = JSON.parse(localStorage.getItem('ordenCheckout') || 'null') || {
+      plan_codigo: 'MENSUAL',
+      plan_nombre: 'Plan Mensual Regular',
+      duracion_meses: 1,
+      monto: 150.00,
+      es_combo_aff: false,
+      talla_combo: null,
+      disciplina: usuario.disciplina || 'Brazilian Jiu-Jitsu',
+      sede_id: usuario.sede_id || 1,
+      sede_nombre: usuario.sede || 'Sede Surco',
+      concepto: 'Plan Mensual Regular — ' + (usuario.disciplina || 'BJJ'),
+    };
+    var metodo = 'yape';
+    var idemKey = 'pay-' + (usuario.id || 0) + '-' + Date.now();
+
+    document.getElementById('inpEmail').value = usuario.email || '';
+    document.getElementById('sumNombre').textContent = usuario.nombre || '—';
+    document.getElementById('sumConcepto').textContent = orden.concepto;
+    document.getElementById('sumDisc').textContent = orden.disciplina;
+    document.getElementById('sumSede').textContent = orden.sede_nombre;
+
+    var total = Number(orden.monto || 150);
+    var sub = total / 1.18;
+    var igv = total - sub;
+    document.getElementById('sumSub').textContent = 'S/. ' + sub.toFixed(2);
+    document.getElementById('sumIgv').textContent = 'S/. ' + igv.toFixed(2);
+    document.getElementById('sumTotal').textContent = 'S/. ' + total.toFixed(2);
+    document.getElementById('yapeQrSvg').innerHTML = renderQrSvg('YAPE-FORCA-' + total.toFixed(2) + '-' + (usuario.id || 1), 92);
+
+    function selMetodo(m) {
+      metodo = m;
+      ['yape', 'tarjeta', 'transferencia', 'efectivo'].forEach(function(k) {
+        document.getElementById('m-' + k).classList.toggle('selected', k === m);
+      });
+      var labels = { yape: 'Yape / Plin QR', tarjeta: 'Tarjeta Online', transferencia: 'Transferencia', efectivo: 'Efectivo en Sede' };
+      document.getElementById('sumMetodo').textContent = labels[m];
+      document.getElementById('yapeQrBox').style.display = m === 'yape' ? 'flex' : 'none';
+    }
+
+    function toggleFactura() {
+      var esFac = document.getElementById('tipoComp').value === 'Factura';
+      document.getElementById('facturaFields').style.display = esFac ? 'grid' : 'none';
+    }
+
+    async function procesarPago() {
+      var tipoComp = document.getElementById('tipoComp').value;
+      var ruc = document.getElementById('inpRuc').value.trim();
+      var razon = document.getElementById('inpRazon').value.trim();
+      if (tipoComp === 'Factura' && (!/^\d{11}$/.test(ruc) || !razon)) {
+        return toast('⚠ Ingresa RUC de 11 dígitos y Razón Social para Factura.');
+      }
+
+      var btn = document.getElementById('btnPagar');
+      btn.disabled = true;
+      btn.textContent = 'Conciliando y firmando UBL 2.1…';
+
+      try {
+        var res = await fetch(API_BASE + '/api/pagos', {
+          method: 'POST',
+          headers: apiHeaders({ 'Idempotency-Key': idemKey }),
+          body: JSON.stringify({
+            alumno_id: usuario.id,
+            sede_id: orden.sede_id,
+            monto: total,
+            concepto: orden.concepto,
+            medio_pago: metodo,
+            tipo_comprobante: tipoComp,
+            ruc_cliente: tipoComp === 'Factura' ? ruc : null,
+            razon_social_cliente: tipoComp === 'Factura' ? razon : null,
+            plan_codigo: orden.plan_codigo,
+            duracion_meses: orden.duracion_meses,
+            disciplina: orden.disciplina,
+            es_combo_aff: orden.es_combo_aff,
+            talla_combo: orden.talla_combo,
+          }),
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error en pago');
+
+        localStorage.setItem('ultimoPago', JSON.stringify({
+          ...data,
+          alumno_nombre: usuario.nombre,
+          email: usuario.email,
+          dni: usuario.dni,
+          disciplina: orden.disciplina,
+          sede_nombre: orden.sede_nombre,
+          duracion_meses: orden.duracion_meses,
+        }));
+        localStorage.removeItem('ordenCheckout');
+
+        toast(data.estado === 'aprobado' ? '✅ ¡Pago conciliado y Boleta/Factura emitida!' : '⏳ Pago pendiente de validación en Tesorería');
+        setTimeout(function() { location.href = 'comprobante.html'; }, 1000);
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = 'Confirmar y Emitir Comprobante →';
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+  </script>
+</body>
+</html>
+

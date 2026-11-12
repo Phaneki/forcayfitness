@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horarios y Disponibilidad de Tatami — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{background:#eff6ff;color:#0d2d5e;font-weight:700;border-radius:8px;border:1.5px solid #bfdbfe;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1120px;margin:0 auto;padding:26px 28px;}
+    .eyebrow{font-size:11px;font-weight:700;color:#15803d;background:#dcfce7;border-radius:20px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px;}
+    .eyebrow span{width:6px;height:6px;background:#16a34a;border-radius:50%;}
+    h1{font-size:28px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:16px;}
+    .filters-row{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;display:flex;align-items:flex-end;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+    .filter-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:150px;}
+    .filter-group label{font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.4px;}
+    .filter-group select,.filter-group input{padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12.5px;font-family:inherit;}
+    .view-btns{display:flex;gap:6px;}
+    .view-btn{padding:8px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;}
+    .view-btn.active{background:#0d2d5e;color:#fff;border-color:#0d2d5e;}
+    .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+    .cards-grid.list-mode{grid-template-columns:1fr;}
+    .class-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;}
+    .cc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .disc-pill{border-radius:5px;padding:3px 9px;font-size:10px;font-weight:800;background:#1d4ed8;color:#fff;}
+    .days-badge{font-size:10px;color:#6b7280;font-weight:600;}
+    .cc-title{font-size:15px;font-weight:800;color:#111;margin-bottom:5px;}
+    .cc-desc{font-size:12px;color:#6b7280;line-height:1.4;margin-bottom:12px;}
+    .cc-meta{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;font-size:12px;}
+    .cc-meta-row{display:flex;justify-content:space-between;}
+    .cc-meta-row .lbl{color:#9ca3af;}
+    .cc-meta-row .val{font-weight:600;color:#374151;}
+    .avail-label{font-size:11.5px;font-weight:700;margin-bottom:4px;}
+    .avail-bar{height:6px;background:#e5e7eb;border-radius:4px;margin-bottom:12px;overflow:hidden;}
+    .avail-fill{height:100%;border-radius:4px;}
+    .btn-reservar{width:100%;background:#0d2d5e;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;}
+    .btn-reservar:hover{background:#1e40af;}
+    .btn-wait{width:100%;background:#d97706;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:13px 18px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    @media (max-width:900px){.cards-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>CONTROL ATÓMICO DE AFORO (18 MAX)</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar" onclick="location.href='perfil.html'">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="eyebrow"><span></span> RESERVA EN TIEMPO REAL · MÁX. 18 ALUMNOS POR TATAMI</div>
+    <h1>Horarios y Disponibilidad</h1>
+    <p class="page-sub">Selecciona sede, disciplina y fecha para bloquear atómicamente tu vacante en el tatami.</p>
+
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>📍 SEDE LIMA</label>
+        <select id="sel-sede" onchange="cargarHorarios()">
+          <option value="">Todas las sedes (Surco, Molina, San Borja)</option>
+          <option value="1">Sede Surco</option>
+          <option value="2">Sede La Molina</option>
+          <option value="3">Sede San Borja</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>🥋 DISCIPLINA</label>
+        <select id="sel-disc" onchange="cargarHorarios()">
+          <option value="">Todas las disciplinas</option>
+          <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+          <option value="Muay Thai">Muay Thai</option>
+          <option value="Boxeo">Boxeo</option>
+          <option value="Capoeira">Capoeira</option>
+          <option value="Acondicionamiento">Acondicionamiento</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>📅 FECHA DE CLASE</label>
+        <input type="date" id="sel-fecha" onchange="cargarHorarios()"/>
+      </div>
+      <div class="view-btns">
+        <button class="view-btn active" id="btnGrid" onclick="setVista('grid')">🗂 Tarjetas</button>
+        <button class="view-btn" id="btnList" onclick="setVista('list')">≡ Lista</button>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="cardsGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#9ca3af;">Cargando disponibilidad en vivo…</div>
+    </div>
+  </main>
+
+  <footer>FORCA &amp; FITNESS S.A.C. · Surco · La Molina · San Borja · Versión 2.5.0</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script>
+    requireRol(['Alumno', 'Profesor', 'Director']);
+    initNav();
+
+    var fechaInp = document.getElementById('sel-fecha');
+    fechaInp.value = new Date().toISOString().slice(0, 10);
+
+    function setVista(v) {
+      document.getElementById('cardsGrid').classList.toggle('list-mode', v === 'list');
+      document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
+      document.getElementById('btnList').classList.toggle('active', v === 'list');
+    }
+
+    async function cargarHorarios() {
+      var sede = document.getElementById('sel-sede').value;
+      var disc = document.getElementById('sel-disc').value;
+      var fecha = document.getElementById('sel-fecha').value;
+      var qs = new URLSearchParams();
+      if (sede) qs.set('sede_id', sede);
+      if (disc) qs.set('disciplina', disc);
+      if (fecha) qs.set('fecha', fecha);
+
+      try {
+        var res = await fetch(API_BASE + '/api/horarios?' + qs.toString());
+        var list = await res.json();
+        renderHorarios(list);
+      } catch (e) {
+        document.getElementById('cardsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#dc2626;padding:30px;">Error cargando horarios.</div>';
+      }
+    }
+
+    function renderHorarios(list) {
+      var grid = document.getElementById('cardsGrid');
+      if (!Array.isArray(list) || !list.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:36px;color:#9ca3af;">No hay clases disponibles con estos filtros.</div>';
+        return;
+      }
+      grid.innerHTML = list.map(function(h) {
+        var ocupados = h.cupos_ocupados || 0;
+        var max = h.aforo_maximo || 18;
+        var disp = Math.max(0, max - ocupados);
+        var pct = Math.min(100, Math.round((ocupados / max) * 100));
+        var color = disp === 0 ? '#dc2626' : disp <= 5 ? '#d97706' : '#16a34a';
+        var btnHtml = disp > 0
+          ? '<button class="btn-reservar" onclick="reservarCupo(' + h.id + ', false)">📋 Reservar cupo atómico</button>'
+          : '<button class="btn-wait" onclick="reservarCupo(' + h.id + ', true)">⏳ Tatami lleno (Unirme a lista de espera)</button>';
+
+        return '<div class="class-card">' +
+          '<div class="cc-header"><span class="disc-pill">' + h.disciplina.toUpperCase() + '</span><span class="days-badge">' + h.dias_bloque + '</span></div>' +
+          '<div class="cc-title">' + h.titulo + '</div>' +
+          '<div class="cc-desc">' + (h.descripcion || '') + '</div>' +
+          '<div class="cc-meta">' +
+            '<div class="cc-meta-row"><span class="lbl">📍 Sede:</span><span class="val">' + h.sede_nombre + '</span></div>' +
+            '<div class="cc-meta-row"><span class="lbl">⏱ Horario:</span><span class="val">' + h.hora_inicio + ' - ' + h.hora_fin + '</span></div>' +
+            '<div class="cc-meta-row"><span class="lbl">🥋 Espacio:</span><span class="val">' + h.espacio + '</span></div>' +
+            '<div class="cc-meta-row"><span class="lbl">👤 Profesor:</span><span class="val" style="color:#0d2d5e">' + (h.profesor_nombre || 'Staff AFF') + '</span></div>' +
+          '</div>' +
+          '<div class="avail-label" style="color:' + color + '">Aforo: ' + disp + ' / ' + max + ' cupos disponibles (' + ocupados + ' ocupados)</div>' +
+          '<div class="avail-bar"><div class="avail-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>' +
+          btnHtml +
+          '</div>';
+      }).join('');
+    }
+
+    async function reservarCupo(horarioId, listaEspera) {
+      var fecha = document.getElementById('sel-fecha').value;
+      try {
+        var res = await fetch(API_BASE + '/api/reservas', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({ horario_id: horarioId, fecha_clase: fecha, aceptar_lista_espera: listaEspera })
+        });
+        var data = await res.json();
+        if (!res.ok) {
+          toast('⚠ ' + (data.error || 'No se pudo reservar'));
+          if (data.code === 'MEMBRESIA_VENCIDA') {
+            setTimeout(function() { location.href = 'renovar.html'; }, 1400);
+          }
+          return;
+        }
+        toast('✅ ' + data.message);
+        cargarHorarios();
+      } catch (e) {
+        toast('❌ Error de conexión al reservar');
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2800);
+    }
+
+    cargarHorarios();
+  </script>
+</body>
+</html>
+

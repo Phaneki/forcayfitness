@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stock Multi-Sede AFF Gear — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1120px;margin:0 auto;padding:26px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    .filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+    .filters select,.filters input{border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;background:#fff;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:9px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-low{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>CONSULTA STOCK MULTI-SEDE (APP3)</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Stock Multi-Sede · AFF Gear y Vitrina</h1>
+    <p class="page-sub">Existencias en vivo por talla y sede (Surco, La Molina y San Borja) con alertas de reposición a taller.</p>
+
+    <div class="card">
+      <div class="filters">
+        <select id="fSede" onchange="render()"><option value="">Todas las Sedes</option></select>
+        <input type="text" id="fSearch" placeholder="Buscar por SKU, prenda o talla..." oninput="render()"/>
+        <label style="font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="fSoloAlerta" onchange="render()"/> Solo Stock Crítico (≤ Reorden)
+        </label>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>SKU</th><th>Producto</th><th>Talla</th><th>Sede</th><th>Disponible</th><th>Punto Reorden</th><th>Precio POS</th><th>Estado</th></tr></thead>
+          <tbody id="tbodyStock"><tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:18px;">Cargando inventario...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APP3 Inventario AFF Gear</footer>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Recepcionista', 'Tesorero', 'Director']);
+    if (usuario) initNav('stock-sedes.html');
+
+    var stock = [];
+
+    async function cargar() {
+      try {
+        var [rSede, rStock] = await Promise.all([
+          fetch(API_BASE + '/api/sedes'),
+          fetch(API_BASE + '/api/inventario/stock', { headers: apiHeaders() })
+        ]);
+        var sedes = await rSede.json();
+        stock = await rStock.json();
+        document.getElementById('fSede').innerHTML = '<option value="">Todas las Sedes</option>' +
+          sedes.map(function(s){ return '<option value="' + s.id + '">' + s.nombre + '</option>'; }).join('');
+        render();
+      } catch (e) { console.error(e); }
+    }
+
+    function render() {
+      var sid = document.getElementById('fSede').value;
+      var q = document.getElementById('fSearch').value.toLowerCase();
+      var soloAlert = document.getElementById('fSoloAlerta').checked;
+      var list = stock.filter(function(s) {
+        if (sid && String(s.sede_id) !== sid) return false;
+        if (soloAlert && !s.alerta_reorden) return false;
+        if (q && !(s.sku + ' ' + s.nombre + ' ' + s.talla).toLowerCase().includes(q)) return false;
+        return true;
+      });
+      document.getElementById('tbodyStock').innerHTML = list.length
+        ? list.map(function(s) {
+            return '<tr>' +
+              '<td><code>' + s.sku + '</code></td>' +
+              '<td><strong>' + s.nombre + '</strong><div style="font-size:11px;color:#6b7280;">' + (s.disciplina || 'General') + '</div></td>' +
+              '<td>' + s.talla + '</td>' +
+              '<td>' + s.sede_nombre + '</td>' +
+              '<td><strong>' + s.cantidad_disponible + ' un.</strong></td>' +
+              '<td>' + s.punto_reorden + ' un.</td>' +
+              '<td>S/ ' + Number(s.precio_venta || 0).toFixed(2) + '</td>' +
+              '<td><span class="' + (s.alerta_reorden ? 'pill-low' : 'pill-ok') + '">' + (s.alerta_reorden ? 'REORDEN REQUERIDO' : 'DISPONIBLE') + '</span></td>' +
+            '</tr>';
+          }).join('')
+        : '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:18px;">Sin artículos con ese filtro.</td></tr>';
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
+

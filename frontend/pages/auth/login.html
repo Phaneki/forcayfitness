@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login y Registro — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;background:#fff;}
+    .left{background:#0d2d5e;width:44%;display:flex;flex-direction:column;justify-content:space-between;padding:32px 40px;color:#fff;}
+    .logo{display:flex;align-items:center;gap:12px;}
+    .logo-box{background:#1a4a8a;border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;border:1px solid #2a5fa0;}
+    .logo-text h1{font-size:14px;font-weight:700;letter-spacing:1px;}
+    .logo-text p{font-size:10px;color:#8ab0d4;letter-spacing:1px;}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;letter-spacing:.5px;width:fit-content;}
+    .badge span{width:7px;height:7px;background:#4ade80;border-radius:50%;display:inline-block;}
+    .hero h2{font-size:36px;font-weight:800;line-height:1.15;margin:16px 0 12px;}
+    .hero p{font-size:14px;color:#8ab0d4;line-height:1.6;}
+    .features{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px;}
+    .feature{display:flex;align-items:flex-start;gap:10px;}
+    .feat-icon{width:32px;height:32px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .feat-text h4{font-size:12px;font-weight:600;}
+    .feat-text p{font-size:11px;color:#8ab0d4;margin-top:2px;}
+    .left-footer{font-size:11px;color:#5a7a9a;}
+    .right{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 36px;overflow-y:auto;}
+    .form-box{width:100%;max-width:460px;}
+    .eyebrow{font-size:11px;font-weight:700;color:#5a7a9a;letter-spacing:1px;margin-bottom:6px;}
+    .form-box h2{font-size:26px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .mode-tabs{display:flex;gap:8px;margin-bottom:20px;background:#f1f5f9;padding:4px;border-radius:10px;}
+    .mode-tab{flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;}
+    .mode-tab.active{background:#fff;color:#0d2d5e;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+    label{display:block;font-size:11px;font-weight:700;color:#374151;letter-spacing:.4px;margin-bottom:5px;}
+    .input-wrap{position:relative;margin-bottom:14px;}
+    .input-wrap input,.input-wrap select{width:100%;padding:10px 14px 10px 38px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:'Inter',sans-serif;outline:none;color:#1f2937;background:#fff;}
+    .input-wrap.plain input,.input-wrap.plain select{padding-left:12px;}
+    .input-wrap input:focus,.input-wrap select:focus{border-color:#0d2d5e;}
+    .input-wrap .icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:#9ca3af;}
+    .input-wrap .eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:14px;color:#9ca3af;cursor:pointer;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    .remember{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#374151;}
+    .cifrado{font-size:12px;color:#16a34a;display:flex;align-items:center;gap:5px;}
+    .btn-primary{width:100%;background:#0d2d5e;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-primary:hover{background:#0a2448;}
+    .err{color:#dc2626;font-size:12.5px;text-align:center;margin-top:10px;display:none;}
+    .lpdp-box{background:#fef9c3;border:1.5px solid #fcd34d;border-radius:10px;padding:12px;margin-bottom:14px;display:none;}
+    .lpdp-box h4{font-size:12px;font-weight:800;color:#92400e;margin-bottom:6px;}
+    .lpdp-box p{font-size:11px;color:#78350f;margin-bottom:8px;line-height:1.4;}
+    .demo-panel{margin-top:18px;border-top:1px solid #e5e7eb;padding-top:14px;}
+    .demo-title{font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;text-align:center;}
+    .demo-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+    .demo-btn{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:#0d2d5e;cursor:pointer;}
+    .demo-btn:hover{background:#eff6ff;border-color:#0d2d5e;}
+    @media (max-width:860px){.left{display:none;}}
+  </style>
+</head>
+<body>
+  <div class="left">
+    <div class="logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>SURCO · LA MOLINA · SAN BORJA</p></div>
+    </div>
+    <div>
+      <div class="badge"><span></span> PLATAFORMA MULTISEDE INTEGRAL</div>
+      <div class="hero">
+        <h2>Bienvenido al Portal<br>Forca &amp; Fitness</h2>
+        <p>Matrículas, control atómico de aforos (18/tatami), pagos Yape/Plin con boleta SUNAT, POS e IA 24/7.</p>
+      </div>
+      <div class="features">
+        <div class="feature"><div class="feat-icon">🥋</div><div class="feat-text"><h4>Control de Tatami</h4><p>Máximo 18 cupos por turno en vivo</p></div></div>
+        <div class="feature"><div class="feat-icon">💳</div><div class="feat-text"><h4>Conciliación &amp; SUNAT</h4><p>Yape/Plin QR y UBL 2.1 automático</p></div></div>
+        <div class="feature"><div class="feat-icon">🛡</div><div class="feat-text"><h4>Ley LPDP Menores</h4><p>Consentimiento digital de apoderado</p></div></div>
+        <div class="feature"><div class="feat-icon">🤖</div><div class="feat-text"><h4>Asistente IA MCP</h4><p>Consulta vacantes y combos 24/7</p></div></div>
+      </div>
+    </div>
+    <div class="left-footer">© 2026 Forca &amp; Fitness S.A.C. &nbsp;·&nbsp; Surco · La Molina · San Borja</div>
+  </div>
+
+  <div class="right">
+    <div class="form-box">
+      <p class="eyebrow">ACCESO UNIFICADO SSO · 5 ROLES</p>
+      <h2>Portal Forca &amp; Fitness</h2>
+      <p class="sub">Inicia sesión con tu cuenta o regístrate online en menos de 1 minuto.</p>
+
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tabLogin" onclick="setMode('login')">Iniciar Sesión</button>
+        <button class="mode-tab" id="tabReg" onclick="setMode('reg')">Registrar Nuevo Alumno</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="panelLogin">
+        <label>CORREO ELECTRÓNICO</label>
+        <div class="input-wrap">
+          <span class="icon">@</span>
+          <input type="email" id="inpEmail" placeholder="correo@forcafitness.pe"/>
+        </div>
+
+        <label>CONTRASEÑA</label>
+        <div class="input-wrap">
+          <span class="icon">🔒</span>
+          <input type="password" id="inpPassword" placeholder="••••••••"/>
+          <span class="eye" onclick="togglePwd()">👁</span>
+        </div>
+
+        <div id="mfaBox" style="display:none;margin-bottom:14px;background:#eff6ff;padding:10px;border-radius:8px;border:1px solid #bfdbfe;">
+          <label style="color:#1d4ed8;">CÓDIGO 2FA DIRECTIVO (DEMO: 123456)</label>
+          <div class="input-wrap plain" style="margin-bottom:0;">
+            <input type="text" id="inpMfa" placeholder="Ingresa código 2FA"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="remember"><input type="checkbox" checked/> Recordar sesión</label>
+          <span class="cifrado">🔐 Conexión cifrada JWT</span>
+        </div>
+
+        <button class="btn-primary" id="btnLogin" onclick="login()">Iniciar sesión →</button>
+        <p class="err" id="login-error"></p>
+
+        <div class="demo-panel">
+          <div class="demo-title">Accesos rápidos de demostración (Clave: Forca2025!)</div>
+          <div class="demo-grid">
+            <button class="demo-btn" onclick="fillDemo('alumno@forcafitness.pe')">🥋 Alumno</button>
+            <button class="demo-btn" onclick="fillDemo('profesor@forcafitness.pe')">📱 Profesor (PWA)</button>
+            <button class="demo-btn" onclick="fillDemo('recepcion@forcafitness.pe')">🛒 Recepción (POS)</button>
+            <button class="demo-btn" onclick="fillDemo('tesorero@forcafitness.pe')">💰 Tesorero</button>
+            <button class="demo-btn" onclick="fillDemo('director@forcafitness.pe')">📊 Director (BI/DVR)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGISTRO FORM (WEB + LPDP MENORES) -->
+      <div id="panelReg" style="display:none;">
+        <div class="grid2">
+          <div>
+            <label>NOMBRES *</label>
+            <div class="input-wrap plain"><input type="text" id="regNombre" placeholder="Nombres"/></div>
+          </div>
+          <div>
+            <label>APELLIDO PATERNO *</label>
+            <div class="input-wrap plain"><input type="text" id="regApePat" placeholder="Apellido"/></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label>DNI (8 DÍGITOS) *</label>
+            <div class="input-wrap plain"><input type="text" id="regDni" maxlength="8" placeholder="72345678"/></div>
+          </div>
+          <div>
+            <label>FECHA NACIMIENTO *</label>
+            <div class="input-wrap plain"><input type="date" id="regFechaNac" onchange="checkMenor()"/></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label>SEDE PRINCIPAL</label>
+            <div class="input-wrap plain">
+              <select id="regSede">
+                <option value="1">Sede Surco</option>
+                <option value="2">Sede La Molina</option>
+                <option value="3">Sede San Borja</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label>DISCIPLINA</label>
+            <div class="input-wrap plain">
+              <select id="regDisc">
+                <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+                <option value="Muay Thai">Muay Thai</option>
+                <option value="Boxeo">Boxeo</option>
+                <option value="Capoeira">Capoeira</option>
+                <option value="Acondicionamiento">Acondicionamiento</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONSENTIMIENTO LPDP MENOR DE EDAD (LEY N° 29733) -->
+        <div class="lpdp-box" id="lpdpBox">
+          <h4>🛡 Consentimiento Obligatorio de Menor (Ley N° 29733 LPDP)</h4>
+          <p>El alumno es menor de 18 años. Se requiere autorización del padre, madre o tutor legal validada por DNI.</p>
+          <div class="grid2">
+            <div><label>NOMBRE APODERADO *</label><div class="input-wrap plain"><input type="text" id="regApodNom" placeholder="Nombre del tutor"/></div></div>
+            <div><label>DNI APODERADO *</label><div class="input-wrap plain"><input type="text" id="regApodDni" maxlength="8" placeholder="40123456"/></div></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:600;margin-top:4px;">
+            <input type="checkbox" id="regLpdpCheck" checked/> Autorizo el tratamiento de datos del menor conforme a la Ley N° 29733.
+          </label>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label>CORREO ELECTRÓNICO *</label>
+            <div class="input-wrap plain"><input type="email" id="regEmail" placeholder="tu@correo.com"/></div>
+          </div>
+          <div>
+            <label>CONTRASEÑA *</label>
+            <div class="input-wrap plain"><input type="password" id="regPass" placeholder="Mín. 8 caracteres"/></div>
+          </div>
+        </div>
+        <button class="btn-primary" id="btnReg" onclick="registrar()">Crear cuenta y entrar →</button>
+        <p class="err" id="reg-error"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    if (_hasSession()) {
+      var usuarioActual = _getUsuario();
+      location.href = _homeForRole(usuarioActual.rol);
+    }
+
+    function setMode(m) {
+      document.getElementById('tabLogin').classList.toggle('active', m === 'login');
+      document.getElementById('tabReg').classList.toggle('active', m === 'reg');
+      document.getElementById('panelLogin').style.display = m === 'login' ? 'block' : 'none';
+      document.getElementById('panelReg').style.display = m === 'reg' ? 'block' : 'none';
+    }
+
+    function togglePwd() {
+      var inp = document.getElementById('inpPassword');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    function fillDemo(email) {
+      document.getElementById('inpEmail').value = email;
+      document.getElementById('inpPassword').value = 'Forca2025!';
+      login();
+    }
+
+    function checkMenor() {
+      var v = document.getElementById('regFechaNac').value;
+      if (!v) return;
+      var nac = new Date(v);
+      var hoy = new Date();
+      var edad = hoy.getFullYear() - nac.getFullYear();
+      if (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate())) edad--;
+      document.getElementById('lpdpBox').style.display = edad < 18 ? 'block' : 'none';
+    }
+
+    async function login() {
+      var email = document.getElementById('inpEmail').value.trim();
+      var password = document.getElementById('inpPassword').value.trim();
+      var mfa_code = document.getElementById('inpMfa').value.trim();
+      var btnLogin = document.getElementById('btnLogin');
+      var errorEl = document.getElementById('login-error');
+
+      if (!email || !password) {
+        errorEl.textContent = 'Ingresa tu correo y contraseña.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btnLogin.textContent = 'Iniciando sesión...';
+      btnLogin.disabled = true;
+      errorEl.style.display = 'none';
+
+      try {
+        var res = await fetch(API_BASE + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password, mfa_code: mfa_code || undefined })
+        });
+        var data = await res.json();
+
+        if (data.mfa_required) {
+          document.getElementById('mfaBox').style.display = 'block';
+          btnLogin.textContent = 'Verificar 2FA y entrar →';
+          btnLogin.disabled = false;
+          return;
+        }
+
+        if (!res.ok || !data.token) {
+          errorEl.textContent = data.error || 'Credenciales incorrectas.';
+          errorEl.style.display = 'block';
+          btnLogin.textContent = 'Iniciar sesión →';
+          btnLogin.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        location.href = _homeForRole(data.usuario.rol);
+      } catch (e) {
+        errorEl.textContent = 'No se pudo conectar con el servidor.';
+        errorEl.style.display = 'block';
+        btnLogin.textContent = 'Iniciar sesión →';
+        btnLogin.disabled = false;
+      }
+    }
+
+    async function registrar() {
+      var errEl = document.getElementById('reg-error');
+      var btn = document.getElementById('btnReg');
+      errEl.style.display = 'none';
+
+      var payload = {
+        nombre: document.getElementById('regNombre').value.trim(),
+        apellido_paterno: document.getElementById('regApePat').value.trim(),
+        dni: document.getElementById('regDni').value.trim(),
+        fecha_nacimiento: document.getElementById('regFechaNac').value,
+        sede_id: Number(document.getElementById('regSede').value),
+        disciplina: document.getElementById('regDisc').value,
+        email: document.getElementById('regEmail').value.trim(),
+        password: document.getElementById('regPass').value,
+        apoderado_nombre: document.getElementById('regApodNom').value.trim(),
+        apoderado_dni: document.getElementById('regApodDni').value.trim(),
+        acepta_lpdp: document.getElementById('regLpdpCheck').checked
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+      try {
+        var res = await fetch(API_BASE + '/api/auth/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var data = await res.json();
+        if (!res.ok) {
+          errEl.textContent = data.error || 'Error al registrarse.';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Crear cuenta y entrar →';
+          return;
+        }
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        location.href = _homeForRole(data.usuario.rol);
+      } catch (e) {
+        errEl.textContent = 'No se pudo conectar con el servidor.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta y entrar →';
+      }
+    }
+  </script>
+</body>
+</html>
+

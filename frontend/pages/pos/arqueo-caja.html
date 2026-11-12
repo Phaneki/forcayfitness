@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arqueo y Cierre de Caja POS — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1100px;margin:0 auto;padding:26px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:20px;}
+    .cols{display:grid;grid-template-columns:390px 1fr;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:14px;}
+    .fgroup{margin-bottom:11px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;color:#374151;margin-bottom:4px;}
+    .fgroup input,.fgroup select,.fgroup textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;}
+    .btn{width:100%;background:#0d2d5e;color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-diff{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    @media (max-width:850px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>ARQUEO Y CIERRE DE CAJA (CMM1)</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Arqueo y Cierre de Caja</h1>
+    <p class="page-sub">Cuadre diario por sede comparando efectivo en gaveta, vouchers Yape/Plin y lotes POS contra pagos del sistema.</p>
+
+    <div class="cols">
+      <form class="card" onsubmit="cerrarCaja(event)">
+        <div class="card-title">🔐 Registrar Cierre de Turno</div>
+        <div class="fgroup">
+          <label>Sede</label>
+          <select id="aSede"></select>
+        </div>
+        <div class="fgroup"><label>Fondo de Apertura (S/)</label><input type="number" step="0.01" id="aApertura" value="200.00" required/></div>
+        <div class="fgroup"><label>Efectivo Contado en Gaveta (S/)</label><input type="number" step="0.01" id="aEfectivo" value="0.00" required/></div>
+        <div class="fgroup"><label>Total Yape / Plin del Turno (S/)</label><input type="number" step="0.01" id="aYape" value="0.00" required/></div>
+        <div class="fgroup"><label>Lote Tarjetas Culqi / POS (S/)</label><input type="number" step="0.01" id="aTarjeta" value="0.00" required/></div>
+        <div class="fgroup"><label>Observaciones del Turno</label><textarea id="aObs" rows="2" placeholder="Sin novedades en caja..."></textarea></div>
+        <button type="submit" class="btn">Cerrar Caja y Calcular Cuadre →</button>
+      </form>
+
+      <div class="card">
+        <div class="card-title">📊 Historial de Arqueos Cerrados</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Sede</th><th>Cajero</th><th>Apertura</th><th>Efectivo</th><th>Yape/Plin</th><th>Tarjeta</th><th>Diferencia</th></tr></thead>
+            <tbody id="tbodyArqueos"><tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:18px;">Cargando arqueos...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · Arqueo de Caja CMM1</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Recepcionista', 'Tesorero', 'Director']);
+    if (usuario) initNav('arqueo-caja.html');
+
+    async function cargar() {
+      try {
+        var [rS, rA] = await Promise.all([
+          fetch(API_BASE + '/api/sedes'),
+          fetch(API_BASE + '/api/tesoreria/arqueos', { headers: apiHeaders() })
+        ]);
+        var sedes = await rS.json();
+        var arqueos = await rA.json();
+        document.getElementById('aSede').innerHTML = sedes.map(function(s) {
+          return '<option value="' + s.id + '"' + (s.id === usuario.sede_id ? ' selected' : '') + '>' + s.nombre + '</option>';
+        }).join('');
+        document.getElementById('tbodyArqueos').innerHTML = arqueos.length
+          ? arqueos.map(function(a) {
+              var dif = Number(a.diferencia || 0);
+              return '<tr>' +
+                '<td><strong>' + a.sede_nombre + '</strong></td>' +
+                '<td>' + a.cajero_nombre + '</td>' +
+                '<td>S/ ' + Number(a.monto_apertura).toFixed(2) + '</td>' +
+                '<td>S/ ' + Number(a.total_efectivo).toFixed(2) + '</td>' +
+                '<td>S/ ' + Number(a.total_yape_plin).toFixed(2) + '</td>' +
+                '<td>S/ ' + Number(a.total_tarjeta).toFixed(2) + '</td>' +
+                '<td><span class="' + (Math.abs(dif) < 0.01 ? 'pill-ok' : 'pill-diff') + '">S/ ' + dif.toFixed(2) + '</span></td>' +
+              '</tr>';
+            }).join('')
+          : '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:18px;">No hay arqueos registrados aún.</td></tr>';
+      } catch (e) { console.error(e); }
+    }
+
+    async function cerrarCaja(ev) {
+      ev.preventDefault();
+      try {
+        var res = await fetch(API_BASE + '/api/tesoreria/arqueos', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({
+            sede_id: Number(document.getElementById('aSede').value),
+            monto_apertura: Number(document.getElementById('aApertura').value),
+            total_efectivo: Number(document.getElementById('aEfectivo').value),
+            total_yape_plin: Number(document.getElementById('aYape').value),
+            total_tarjeta: Number(document.getElementById('aTarjeta').value),
+            observaciones: document.getElementById('aObs').value.trim()
+          })
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error registrando arqueo');
+        toast('✅ Arqueo cerrado · Diferencia: S/ ' + Number(d.diferencia || 0).toFixed(2));
+        cargar();
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
+

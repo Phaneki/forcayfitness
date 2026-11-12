@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d2d5e"/>
+  <link rel="manifest" href="../../manifest.json"/>
+  <title>Staff PWA · Escáner QR y Aforo Tatami — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1120px;margin:0 auto;padding:24px 28px;}
+    .net-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:10px;margin-bottom:18px;font-size:12.5px;font-weight:600;flex-wrap:wrap;gap:10px;}
+    .net-online{background:#dcfce7;border:1px solid #86efac;color:#166534;}
+    .net-offline{background:#fef3c7;border:1px solid #fcd34d;color:#92400e;}
+    .cols{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+    .fgroup{margin-bottom:12px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;color:#374151;margin-bottom:5px;}
+    .fgroup select,.fgroup input{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:13px;}
+    .aforo-track{height:14px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin:8px 0;}
+    .aforo-fill{height:100%;transition:width .25s;background:#16a34a;}
+    .aforo-fill.warn{background:#d97706;}
+    .aforo-fill.full{background:#dc2626;}
+    .btn{padding:10px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;}
+    .btn-primary{background:#0d2d5e;color:#fff;}
+    .btn-outline{background:#fff;color:#0d2d5e;border:1.5px solid #cbd5e1;}
+    .btn-warn{background:#d97706;color:#fff;}
+    .result-box{border-radius:10px;padding:16px;margin-top:14px;display:none;}
+    .result-box.ok{display:block;background:#f0fdf4;border:1.5px solid #86efac;color:#166534;}
+    .result-box.err{display:block;background:#fef2f2;border:1.5px solid #fca5a5;color:#991b1b;}
+    .result-box.off{display:block;background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;}
+    .chip{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;padding:5px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;}
+    .queue-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #f3f4f6;font-size:12px;}
+    video{width:100%;border-radius:10px;background:#0f172a;max-height:220px;object-fit:cover;margin-top:10px;display:none;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    @media (max-width:850px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>APU2 · WEBAPP STAFF PWA</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="net-bar net-online" id="netBar">
+      <span id="netStatusTxt">🟢 Conectado en tiempo real · PWA Tatami Listo</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-outline" style="padding:6px 10px;font-size:11.5px;" onclick="toggleOfflineSim()">⚡ Simular Modo Offline Tatami</button>
+        <button class="btn btn-primary" style="padding:6px 10px;font-size:11.5px;" onclick="sincronizarCola()">🔄 Sincronizar Cola (<span id="queueCount">0</span>)</button>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span>📷 Escáner QR en Tatami</span>
+            <button class="btn btn-outline" style="padding:6px 10px;font-size:11.5px;" onclick="toggleCamara()">🎥 Cámara WebRTC</button>
+          </div>
+
+          <div class="fgroup">
+            <label>1. Clase / Bloque de Tatami Actual</label>
+            <select id="selHorario" onchange="actualizarAforoClase()"></select>
+          </div>
+
+          <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;">
+              <span id="aforoLabel">Aforo del Tatami</span>
+              <span id="aforoNums" style="color:#0d2d5e;">0 / 18 alumnos</span>
+            </div>
+            <div class="aforo-track"><div class="aforo-fill" id="aforoFill" style="width:0%"></div></div>
+            <div style="font-size:11px;color:#6b7280;" id="aforoHint">Tope de seguridad física: máximo 18 practicantes por tatami.</div>
+          </div>
+
+          <div class="fgroup">
+            <label>2. Escanear Token QR o Digitar DNI del Alumno</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="qrInput" placeholder="Ej: FF-QR-DIEGO-101 o 70000001" onkeydown="if(event.key==='Enter'){validarIngreso();}"/>
+              <button class="btn btn-primary" onclick="validarIngreso()">Validar QR →</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;" id="quickChips">
+            <span class="chip" onclick="scanDemo('QR-ALU-0001')">Mateo Fernández (Activo · QR-ALU-0001)</span>
+            <span class="chip" onclick="scanDemo('QR-ALU-0003')">Diego Torres (Vencida · QR-ALU-0003)</span>
+            <span class="chip" onclick="scanDemo('QR-ALU-0004')">Sofía Castro (Menor LPDP · QR-ALU-0004)</span>
+          </div>
+
+          <video id="camVideo" playsinline autoplay></video>
+          <div id="scanResult" class="result-box"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title"><span>📥 Cola Offline PWA (IndexedDB / Local)</span></div>
+          <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">Cuando falla el Wi-Fi del sótano o tatami, las lecturas QR se almacenan localmente y se sincronizan al recuperar conexión.</p>
+          <div id="offlineQueueList" style="max-height:200px;overflow-y:auto;">
+            <div style="font-size:12px;color:#9ca3af;padding:10px 0;">Sin lecturas pendientes en cola offline.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>✅ Últimos Check-ins en Sede</span>
+            <a href="asistencia.html" style="font-size:12px;color:#0d2d5e;font-weight:700;text-decoration:none;">Ver lista completa →</a>
+          </div>
+          <div id="recentCheckins" style="max-height:260px;overflow-y:auto;">
+            <div style="font-size:12px;color:#9ca3af;">Cargando ingresos...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APU2 Staff PWA con Soporte Offline IndexedDB</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('../../sw.js').catch(function(){});
+    }
+
+    var usuario = requireRol(['Profesor', 'Director']);
+    if (usuario) initNav('index.html');
+
+    var QUEUE_KEY = 'forca_offline_qr_queue';
+    var horarios = [];
+    var offlineSimulated = !navigator.onLine;
+    var camStream = null;
+    var scanLoop = null;
+
+    function getQueue() {
+      try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch { return []; }
+    }
+    function saveQueue(arr) {
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(arr));
+      renderQueue();
+    }
+
+    function updateNetBanner() {
+      var bar = document.getElementById('netBar');
+      var txt = document.getElementById('netStatusTxt');
+      if (offlineSimulated || !navigator.onLine) {
+        bar.className = 'net-bar net-offline';
+        txt.textContent = '🟡 MODO OFFLINE TATAMI · Los escaneos se encolan en dispositivo';
+      } else {
+        bar.className = 'net-bar net-online';
+        txt.textContent = '🟢 Conectado en tiempo real · PWA Tatami Listo';
+      }
+    }
+
+    function toggleOfflineSim() {
+      offlineSimulated = !offlineSimulated;
+      updateNetBanner();
+    }
+
+    window.addEventListener('online', function(){ offlineSimulated = false; updateNetBanner(); });
+    window.addEventListener('offline', function(){ offlineSimulated = true; updateNetBanner(); });
+
+    async function cargarHorarios() {
+      try {
+        var res = await fetch(API_BASE + '/api/horarios', { headers: apiHeaders() });
+        horarios = await res.json();
+        var sel = document.getElementById('selHorario');
+        sel.innerHTML = horarios.map(function(h) {
+          return '<option value="' + h.id + '" data-sede="' + h.sede_id + '">' + h.sede_nombre + ' · ' + h.titulo + ' (' + h.hora_inicio + '-' + h.hora_fin + ') — ' + h.cupos_ocupados + '/' + h.aforo_maximo + '</option>';
+        }).join('');
+        actualizarAforoClase();
+      } catch (e) {
+        toast('Error cargando horarios');
+      }
+    }
+
+    function actualizarAforoClase() {
+      var id = Number(document.getElementById('selHorario').value);
+      var h = horarios.find(function(x){ return x.id === id; });
+      if (!h) return;
+      var max = h.aforo_maximo || 18;
+      var occ = h.cupos_ocupados || 0;
+      var pct = Math.min(100, Math.round((occ / max) * 100));
+      document.getElementById('aforoLabel').textContent = h.titulo + ' (' + h.sede_nombre + ')';
+      document.getElementById('aforoNums').textContent = occ + ' / ' + max + ' cupos';
+      var fill = document.getElementById('aforoFill');
+      fill.style.width = pct + '%';
+      fill.className = 'aforo-fill' + (occ >= max ? ' full' : pct >= 80 ? ' warn' : '');
+      document.getElementById('aforoHint').textContent = occ >= max
+        ? '⚠️ AFORO COMPLETO (18/18). No se permiten ingresos adicionales sin cupo.'
+        : 'Espacio disponible: ' + (max - occ) + ' lugares libres en ' + (h.espacio || 'Tatami Principal') + '.';
+      cargarRecientes(h.id);
+    }
+
+    function scanDemo(code) {
+      document.getElementById('qrInput').value = code;
+      validarIngreso();
+    }
+
+    async function validarIngreso() {
+      var raw = document.getElementById('qrInput').value.trim();
+      if (!raw) return toast('Ingresa un código QR o DNI');
+      var sel = document.getElementById('selHorario');
+      var horarioId = Number(sel.value || 1);
+      var h = horarios.find(function(x){ return x.id === horarioId; }) || { sede_id: usuario.sede_id || 1 };
+
+      var payload = {
+        horario_id: horarioId,
+        sede_id: h.sede_id,
+        metodo: 'QR',
+        fecha_hora: new Date().toISOString()
+      };
+      if (/^\d{8,12}$/.test(raw)) payload.dni = raw;
+      else payload.qr_token = raw;
+
+      if (offlineSimulated || !navigator.onLine) {
+        var q = getQueue();
+        q.push(payload);
+        saveQueue(q);
+        mostrarResultado('off', '🟡 Guardado en Cola Offline', 'Lectura para ' + raw + ' almacenada localmente. Presiona "Sincronizar Cola" al reconectar.');
+        document.getElementById('qrInput').value = '';
+        return;
+      }
+
+      try {
+        var res = await fetch(API_BASE + '/api/asistencias/qr', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify(payload)
+        });
+        var d = await res.json();
+        if (d.autorizado) {
+          mostrarResultado('ok', '✅ ACCESO AUTORIZADO — ' + (d.alumno ? d.alumno.nombre : raw),
+            (d.alumno ? d.alumno.disciplina + ' · ' + (d.alumno.grado_actual || '') + ' · ' : '') + d.message);
+          cargarHorarios();
+        } else {
+          mostrarResultado('err', '⛔ ACCESO DENEGADO (' + (d.estado_validacion || 'ERROR') + ')', d.message || d.error || 'Validación rechazada');
+        }
+        document.getElementById('qrInput').value = '';
+      } catch (e) {
+        var qErr = getQueue();
+        qErr.push(payload);
+        saveQueue(qErr);
+        mostrarResultado('off', '🟡 Red inaccesible · Encolado Offline', 'Guardado automáticamente para sincronización diferida.');
+      }
+    }
+
+    function mostrarResultado(cls, title, desc) {
+      var box = document.getElementById('scanResult');
+      box.className = 'result-box ' + cls;
+      box.innerHTML = '<div style="font-size:14px;font-weight:800;">' + title + '</div><div style="font-size:12.5px;margin-top:4px;">' + desc + '</div>';
+    }
+
+    function renderQueue() {
+      var q = getQueue();
+      document.getElementById('queueCount').textContent = q.length;
+      var el = document.getElementById('offlineQueueList');
+      if (!q.length) {
+        el.innerHTML = '<div style="font-size:12px;color:#9ca3af;padding:10px 0;">Sin lecturas pendientes en cola offline.</div>';
+        return;
+      }
+      el.innerHTML = q.map(function(item, idx) {
+        return '<div class="queue-item"><span><strong>' + (item.qr_token || item.dni) + '</strong> · Clase #' + item.horario_id + '</span><span style="color:#92400e;">Pendiente</span></div>';
+      }).join('');
+    }
+
+    async function sincronizarCola() {
+      if (offlineSimulated || !navigator.onLine) return toast('Activa conexión antes de sincronizar');
+      var q = getQueue();
+      if (!q.length) return toast('No hay lecturas pendientes');
+      try {
+        var res = await fetch(API_BASE + '/api/asistencias/sync-offline', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({ items: q })
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error sincronizando');
+        saveQueue([]);
+        toast('✅ ' + (d.sincronizados || 0) + ' asistencia(s) offline sincronizadas');
+        cargarHorarios();
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    async function cargarRecientes(horarioId) {
+      try {
+        var res = await fetch(API_BASE + '/api/asistencias?horario_id=' + horarioId, { headers: apiHeaders() });
+        var rows = await res.json();
+        var box = document.getElementById('recentCheckins');
+        if (!Array.isArray(rows) || !rows.length) {
+          box.innerHTML = '<div style="font-size:12px;color:#9ca3af;padding:8px 0;">Aún no hay escaneos registrados para esta clase.</div>';
+          return;
+        }
+        box.innerHTML = rows.slice(0, 10).map(function(a) {
+          var ok = a.estado_validacion === 'autorizado';
+          return '<div class="queue-item">' +
+            '<div><strong>' + a.alumno_nombre + '</strong><div style="font-size:11px;color:#6b7280;">' + (a.metodo || 'QR') + (a.sincronizado_offline ? ' (OfflineSync)' : '') + ' · ' + new Date(a.fecha_hora).toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'}) + '</div></div>' +
+            '<span style="font-size:11px;font-weight:700;color:' + (ok ? '#16a34a' : '#dc2626') + ';">' + a.estado_validacion + '</span>' +
+          '</div>';
+        }).join('');
+      } catch {}
+    }
+
+    async function toggleCamara() {
+      var video = document.getElementById('camVideo');
+      if (camStream) {
+        camStream.getTracks().forEach(function(t){ t.stop(); });
+        camStream = null;
+        if (scanLoop) clearInterval(scanLoop);
+        video.style.display = 'none';
+        return;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return toast('Cámara no disponible en este navegador; usa el lector manual.');
+      }
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = camStream;
+        video.style.display = 'block';
+        if ('BarcodeDetector' in window) {
+          var det = new BarcodeDetector({ formats: ['qr_code'] });
+          scanLoop = setInterval(async function() {
+            try {
+              var codes = await det.detect(video);
+              if (codes.length && codes[0].rawValue) {
+                document.getElementById('qrInput').value = codes[0].rawValue;
+                toggleCamara();
+                validarIngreso();
+              }
+            } catch {}
+          }, 700);
+        } else {
+          toast('Cámara activa (usa BarcodeDetector en Chrome/Android o ingresa código QR arriba).');
+        }
+      } catch (e) {
+        toast('Permiso de cámara denegado o sin cámara física.');
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    updateNetBanner();
+    renderQueue();
+    cargarHorarios();
+  </script>
+</body>
+</html>

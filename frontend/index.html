@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Forca &amp; Fitness — Plataforma Integral</title>
+  <link rel="manifest" href="manifest.json"/>
+</head>
+<body>
+  <script src="pages/auth.js"></script>
+  <script>
+    if (_hasSession()) {
+      var u = _getUsuario();
+      location.replace(_homeForRole(u.rol).replace('../', 'pages/'));
+    } else {
+      location.replace('pages/auth/login.html');
+    }
+  </script>
+  <p>Redirigiendo al <a href="pages/auth/login.html">inicio de sesión</a>...</p>
+</body>
+</html>
+

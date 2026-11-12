@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="../../manifest.json"/>
+  <title>Lista de Asistencia en Clase — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1140px;margin:0 auto;padding:26px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+    .toolbar select,.toolbar input{border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;background:#fff;min-width:240px;}
+    .cols{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    .pill{padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-ok{background:#dcfce7;color:#166534;}
+    .pill-bad{background:#fee2e2;color:#991b1b;}
+    .btn{padding:6px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#0d2d5e;color:#fff;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    @media (max-width:900px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>LISTA DE ASISTENCIA EN TATAMI</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Lista de Asistencia de Clase</h1>
+    <p class="page-sub">Control de presentes, alertas de mora/vencimiento y check-in manual rápido en clase.</p>
+
+    <div class="toolbar">
+      <select id="selHorario" onchange="cargarAsistencias()"></select>
+      <input type="text" id="qSearch" placeholder="Buscar alumno por nombre o DNI..." oninput="renderAlumnos()"/>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <div class="card-title">📋 Padrón de Alumnos · Check-in Manual</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Alumno</th><th>Grado / Disc.</th><th>Membresía</th><th>Acción</th></tr></thead>
+            <tbody id="tbodyAlumnos"><tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:16px;">Cargando alumnos...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Ingresos Registrados en la Clase</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Alumno</th><th>Método</th><th>Estado</th><th>Hora</th></tr></thead>
+            <tbody id="tbodyAsistencias"><tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:16px;">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APU2 Asistencia de Clase</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js').catch(function(){});
+    var usuario = requireRol(['Profesor', 'Director']);
+    if (usuario) initNav('asistencia.html');
+
+    var horarios = [];
+    var alumnos = [];
+
+    async function init() {
+      try {
+        var [rH, rA] = await Promise.all([
+          fetch(API_BASE + '/api/horarios', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/alumnos', { headers: apiHeaders() })
+        ]);
+        horarios = await rH.json();
+        alumnos = await rA.json();
+        document.getElementById('selHorario').innerHTML = horarios.map(function(h) {
+          return '<option value="' + h.id + '">' + h.sede_nombre + ' · ' + h.titulo + ' (' + h.hora_inicio + ') — ' + h.cupos_ocupados + '/' + h.aforo_maximo + '</option>';
+        }).join('');
+        renderAlumnos();
+        cargarAsistencias();
+      } catch (e) {
+        toast('Error inicializando asistencia: ' + e.message);
+      }
+    }
+
+    function renderAlumnos() {
+      var q = document.getElementById('qSearch').value.toLowerCase();
+      var list = alumnos.filter(function(a) {
+        return !q || (a.nombre + ' ' + (a.apellido_paterno || '') + ' ' + a.dni).toLowerCase().includes(q);
+      });
+      document.getElementById('tbodyAlumnos').innerHTML = list.map(function(a) {
+        var activo = a.estado_membresia === 'activa' && a.acceso_habilitado !== false;
+        return '<tr>' +
+          '<td><strong>' + a.nombre + ' ' + (a.apellido_paterno || '') + '</strong><div style="font-size:11px;color:#6b7280;">DNI ' + a.dni + '</div></td>' +
+          '<td>' + (a.disciplina || 'BJJ') + '<div style="font-size:11px;color:#6b7280;">' + (a.grado_actual || '—') + '</div></td>' +
+          '<td><span class="pill ' + (activo ? 'pill-ok' : 'pill-bad') + '">' + (activo ? 'AL DÍA' : (a.estado_membresia || 'VENCIDA')) + '</span></td>' +
+          '<td><button class="btn" onclick="checkInManual(' + a.id + ')">Check-in →</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function checkInManual(alumnoId) {
+      var hid = Number(document.getElementById('selHorario').value);
+      var h = horarios.find(function(x){ return x.id === hid; }) || {};
+      try {
+        var res = await fetch(API_BASE + '/api/asistencias/qr', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({ usuario_id: alumnoId, horario_id: hid, sede_id: h.sede_id || 1, metodo: 'Manual' })
+        });
+        var d = await res.json();
+        toast((d.autorizado ? '✅ ' : '⛔ ') + d.message);
+        cargarAsistencias();
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    async function cargarAsistencias() {
+      var hid = document.getElementById('selHorario').value;
+      if (!hid) return;
+      try {
+        var res = await fetch(API_BASE + '/api/asistencias?horario_id=' + hid, { headers: apiHeaders() });
+        var rows = await res.json();
+        document.getElementById('tbodyAsistencias').innerHTML = rows.length
+          ? rows.map(function(r) {
+              var ok = r.estado_validacion === 'autorizado';
+              return '<tr><td><strong>' + r.alumno_nombre + '</strong></td><td>' + r.metodo + '</td><td><span class="pill ' + (ok ? 'pill-ok' : 'pill-bad') + '">' + r.estado_validacion + '</span></td><td>' + new Date(r.fecha_hora).toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'}) + '</td></tr>';
+            }).join('')
+          : '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:16px;">Sin asistencias registradas en esta clase aún.</td></tr>';
+      } catch {}
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
