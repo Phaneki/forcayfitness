@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CRM, Churn y Campañas de Retención — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 11px;font-size:12.5px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:24px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .cols{display:grid;grid-template-columns:1.25fr 380px;gap:18px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;}
+    .fgroup{margin-bottom:10px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;margin-bottom:4px;}
+    .fgroup input,.fgroup select{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12.5px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 9px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:9px;border-bottom:1px solid #f3f4f6;}
+    .pill-high{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-med{background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .btn{padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;background:#0d2d5e;color:#fff;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:950px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>CMM2 · CRM RETENCIÓN Y LEADS IA 24/7</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">CRM Omnicanal, Retención y Leads Agente IA 24/7</h1>
+    <p class="page-sub">Seguimiento de alumnos con riesgo de abandono (Churn), leads captados vía MCP/Chat IA y campañas de renovación.</p>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="card-title">⚠️ Cohorte de Alumnos en Riesgo de Churn</div>
+          <table>
+            <thead><tr><th>Alumno</th><th>Disciplina</th><th>Vencimiento</th><th>Nivel de Riesgo</th></tr></thead>
+            <tbody id="tbodyChurn"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🤖 Leads Captados 24/7 (Agente IA &amp; Web)</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Prospecto</th><th>WhatsApp</th><th>Sede / Disc.</th><th>Plan</th><th>Estado CRM</th></tr></thead>
+              <tbody id="tbodyLeads"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📣 Campañas Omnicanal Lanzadas</div>
+          <table>
+            <thead><tr><th>Título</th><th>Segmento</th><th>Canal</th><th>Alcance</th><th>Estado</th></tr></thead>
+            <tbody id="tbodyCampanas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <form class="card" id="formCamp" onsubmit="lanzarCampana(event)">
+        <div class="card-title">🚀 Lanzar Campaña de Retención</div>
+        <div class="fgroup"><label>Título de Campaña</label><input type="text" id="cTitulo" required placeholder="Ej: Renovación anticipada 10% dscto"/></div>
+        <div class="fgroup">
+          <label>Segmento Objetivo</label>
+          <select id="cSeg">
+            <option value="Proximos a vencer">Próximos a vencer (≤ 7 días)</option>
+            <option value="Vencidos 30 dias">Ex-alumnos vencidos</option>
+            <option value="Leads Agente IA 24/7">Prospectos captados por IA</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label>Canal Omnicanal</label>
+          <select id="cCanal">
+            <option value="WhatsApp + Email">WhatsApp + Email</option>
+            <option value="WhatsApp Business">WhatsApp Business</option>
+            <option value="Email Marketing">Email Marketing</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Destinatarios Estimados</label><input type="number" id="cCount" value="15" min="1"/></div>
+        <button type="submit" class="btn" style="width:100%;">Disparar Campaña CRM →</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · CMM2 CRM y Analítica de Retención</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Director', 'Tesorero']);
+    if (usuario) initNav('crm-retencion.html');
+
+    async function cargar() {
+      try {
+        document.getElementById('formCamp').style.display = usuario.rol === 'Director' ? 'block' : 'none';
+        var [rK, rL, rC] = await Promise.all([
+          fetch(API_BASE + '/api/analitica/kpis', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/crm/leads', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/crm/campanas', { headers: apiHeaders() })
+        ]);
+        var kpis = await rK.json();
+        var leads = await rL.json();
+        var camps = await rC.json();
+
+        var riesgo = kpis.en_riesgo_churn || [];
+        document.getElementById('cCount').value = Math.max(1, riesgo.length);
+        document.getElementById('tbodyChurn').innerHTML = riesgo.length
+          ? riesgo.map(function(a) {
+              var high = String(a.riesgo || '').includes('Alto');
+              return '<tr><td><strong>' + a.nombre + ' ' + (a.apellido_paterno || '') + '</strong><div style="font-size:11px;color:#6b7280;">' + (a.telefono || a.email) + '</div></td><td>' + (a.disciplina || 'BJJ') + '</td><td>' + (a.fecha_fin ? String(a.fecha_fin).slice(0,10) : 'Sin matrícula') + '</td><td><span class="' + (high ? 'pill-high' : 'pill-med') + '">' + a.riesgo + '</span></td></tr>';
+            }).join('')
+          : '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:14px;">Sin alumnos en riesgo inmediato.</td></tr>';
+
+        document.getElementById('tbodyLeads').innerHTML = leads.map(function(l) {
+          var sel = usuario.rol === 'Director'
+            ? '<select onchange="cambiarEstadoLead(' + l.id + ', this.value)" style="padding:4px 6px;border-radius:6px;border:1px solid #cbd5e1;font-size:12px;">' +
+              ['nuevo','contactado','inscrito','descartado'].map(function(st){ return '<option value="' + st + '"' + (l.estado === st ? ' selected' : '') + '>' + st.toUpperCase() + '</option>'; }).join('') +
+              '</select>'
+            : '<span class="pill-ok">' + l.estado.toUpperCase() + '</span>';
+          return '<tr><td><strong>' + l.nombre + '</strong><div style="font-size:11px;color:#6b7280;">' + (l.canal || 'IA 24/7') + '</div></td><td>' + l.whatsapp + '</td><td>' + l.sede_interes + ' · ' + l.disciplina_interes + '</td><td>' + l.plan_interes + '</td><td>' + sel + '</td></tr>';
+        }).join('');
+
+        document.getElementById('tbodyCampanas').innerHTML = camps.map(function(c) {
+          return '<tr><td><strong>' + c.titulo + '</strong></td><td>' + c.segmento + '</td><td>' + c.canal + '</td><td>' + c.destinatarios_count + '</td><td><span class="pill-ok">' + c.estado.toUpperCase() + '</span></td></tr>';
+        }).join('');
+      } catch (e) { toast('Error cargando CRM: ' + e.message); }
+    }
+
+    async function cambiarEstadoLead(id, estado) {
+      try {
+        var r = await fetch(API_BASE + '/api/crm/leads/' + id, {
+          method: 'PUT',
+          headers: apiHeaders(),
+          body: JSON.stringify({ estado: estado })
+        });
+        if (!r.ok) throw new Error('Error actualizando lead');
+        toast('✅ Estado de lead actualizado');
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    async function lanzarCampana(ev) {
+      ev.preventDefault();
+      try {
+        var r = await fetch(API_BASE + '/api/crm/campanas', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({
+            titulo: document.getElementById('cTitulo').value.trim(),
+            segmento: document.getElementById('cSeg').value,
+            canal: document.getElementById('cCanal').value,
+            destinatarios_count: Number(document.getElementById('cCount').value || 1)
+          })
+        });
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Error lanzando campaña');
+        document.getElementById('cTitulo').value = '';
+        toast('✅ Campaña CRM enviada');
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
+

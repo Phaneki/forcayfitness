@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terminal POS · Caja Rápida — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:22px 24px;}
+    .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;}
+    .kbd{background:#e2e8f0;color:#0f172a;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;font-family:monospace;}
+    .cols{display:grid;grid-template-columns:1.35fr 400px;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;margin-bottom:16px;}
+    .card-title{font-size:14.5px;font-weight:700;color:#0d2d5e;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+    .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;}
+    .prod-btn{border:1.5px solid #e5e7eb;border-radius:10px;padding:12px;text-align:left;background:#fff;cursor:pointer;transition:all .15s;}
+    .prod-btn:hover{border-color:#0d2d5e;background:#f8fafc;}
+    .prod-btn .p-cat{font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;}
+    .prod-btn .p-name{font-size:13px;font-weight:700;color:#111827;margin:4px 0;}
+    .prod-btn .p-price{font-size:14px;font-weight:800;color:#0d2d5e;}
+    .fgroup{margin-bottom:10px;}
+    .fgroup label{display:block;font-size:11px;font-weight:700;color:#374151;margin-bottom:4px;}
+    .fgroup select,.fgroup input{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12.5px;}
+    .cart-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:12.5px;}
+    .btn{padding:9px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+    .btn-primary{background:#0d2d5e;color:#fff;}
+    .btn-outline{background:#fff;color:#0d2d5e;border:1.5px solid #cbd5e1;}
+    .pay-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;}
+    .pay-tab{padding:8px 4px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-size:11px;font-weight:700;cursor:pointer;text-align:center;}
+    .pay-tab.active{border-color:#0d2d5e;background:#eff6ff;color:#0d2d5e;}
+    .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;align-items:center;justify-content:center;z-index:999;}
+    .modal-bg.open{display:flex;}
+    .modal{background:#fff;border-radius:14px;padding:22px;width:92%;max-width:460px;max-height:90vh;overflow-y:auto;}
+    .ticket-80mm{font-family:monospace;font-size:12px;background:#fff;border:1px dashed #9ca3af;padding:14px;border-radius:8px;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:18px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:950px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>APU3 · TERMINAL POS RECEPCIÓN</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;color:#0d2d5e;">Terminal POS Multi-Sede</h1>
+        <p style="font-size:12.5px;color:#6b7280;">Atajos: <span class="kbd">F1</span> Efectivo · <span class="kbd">F2</span> Yape/Plin · <span class="kbd">F3</span> Tarjeta · <span class="kbd">F4</span> Nuevo Alumno</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <select id="selSede" onchange="cargarStock()" style="border:1.5px solid #cbd5e1;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;background:#fff;"></select>
+        <button class="btn btn-outline" onclick="abrirModalAlumno()">+ Nuevo Alumno (F4)</button>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="card-title">🥋 Planes y Matrículas Presenciales</div>
+          <div class="prod-grid" id="gridPlanes"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🛍️ Vitrina AFF Gear, Uniformes y Bebidas (Kárdex Sede)</div>
+          <div class="prod-grid" id="gridStock"></div>
+        </div>
+      </div>
+
+      <div class="card" style="position:sticky;top:16px;">
+        <div class="card-title">🧾 Ticket de Caja Actual <button class="btn btn-outline" style="padding:4px 8px;font-size:11px;" onclick="limpiarCarrito()">Limpiar</button></div>
+
+        <div class="fgroup">
+          <label>Alumno / Cliente (Buscar por nombre o DNI)</label>
+          <input type="text" id="qAlumno" placeholder="Filtrar alumno..." oninput="filtrarAlumnos()" style="margin-bottom:6px;"/>
+          <select id="selAlumno"></select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="fgroup">
+            <label>Disciplina (si es Matrícula)</label>
+            <select id="selDisc">
+              <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+              <option value="Muay Thai">Muay Thai</option>
+              <option value="Boxeo">Boxeo</option>
+              <option value="Capoeira">Capoeira</option>
+              <option value="Acondicionamiento">Acondicionamiento</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label>Talla Kit (Combo AFF)</label>
+            <select id="selTalla"><option>A2</option><option>A1</option><option>A3</option><option>M</option><option>L</option></select>
+          </div>
+        </div>
+
+        <div id="cartList" style="max-height:170px;overflow-y:auto;margin:8px 0;">
+          <div style="font-size:12px;color:#9ca3af;text-align:center;padding:12px;">Selecciona un plan o producto del catálogo.</div>
+        </div>
+
+        <div style="background:#f8fafc;padding:10px;border-radius:8px;margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Op. Gravada:</span><span id="cSub">S/ 0.00</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span>IGV (18%):</span><span id="cIgv">S/ 0.00</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#0d2d5e;margin-top:4px;"><span>TOTAL A COBRAR:</span><span id="cTot">S/ 0.00</span></div>
+        </div>
+
+        <div class="pay-tabs">
+          <button type="button" class="pay-tab active" id="pm-efectivo" onclick="selMetodo('efectivo')">💵 Efectivo (F1)</button>
+          <button type="button" class="pay-tab" id="pm-yape" onclick="selMetodo('yape')">📱 Yape (F2)</button>
+          <button type="button" class="pay-tab" id="pm-tarjeta" onclick="selMetodo('tarjeta')">💳 Tarjeta (F3)</button>
+          <button type="button" class="pay-tab" id="pm-transferencia" onclick="selMetodo('transferencia')">🏦 Transf.</button>
+        </div>
+
+        <div class="fgroup">
+          <label>Comprobante Electrónico SUNAT</label>
+          <select id="selComp" onchange="toggleRuc()">
+            <option value="Boleta">Boleta de Venta (B001)</option>
+            <option value="Factura">Factura Electrónica (F001)</option>
+          </select>
+        </div>
+        <div id="rucFields" style="display:none;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="fgroup"><label>RUC</label><input type="text" id="pRuc" maxlength="11"/></div>
+          <div class="fgroup"><label>Razón Social</label><input type="text" id="pRaz"/></div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;padding:12px;font-size:13.5px;margin-top:6px;" id="btnCobrar" onclick="cobrarPos()">Cobrar y Emitir Ticket SUNAT →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Nuevo Alumno Presencial -->
+  <div class="modal-bg" id="modalAlumno">
+    <div class="modal">
+      <h3 style="font-size:16px;font-weight:800;color:#0d2d5e;margin-bottom:12px;">👤 Alta Rápida de Alumno Presencial (APP1)</h3>
+      <div class="fgroup"><label>Nombre</label><input type="text" id="nNom" required/></div>
+      <div class="fgroup"><label>Apellido Paterno</label><input type="text" id="nPat" required/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="fgroup"><label>DNI (8 dígitos)</label><input type="text" id="nDni" maxlength="12" required/></div>
+        <div class="fgroup"><label>Fecha Nacimiento</label><input type="date" id="nNac" value="1998-01-01" onchange="checkMenor()"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="fgroup"><label>Email</label><input type="email" id="nEmail" required/></div>
+        <div class="fgroup"><label>Celular</label><input type="text" id="nTel"/></div>
+      </div>
+      <div id="menorBox" style="display:none;background:#eff6ff;padding:10px;border-radius:8px;margin-bottom:10px;">
+        <div style="font-size:11.5px;font-weight:700;color:#1e3a8a;margin-bottom:6px;">⚖️ Consentimiento Apoderado Menor (Ley N° 29733)</div>
+        <div class="fgroup"><label>Nombre del Apoderado</label><input type="text" id="nApoNom"/></div>
+        <div class="fgroup"><label>DNI del Apoderado</label><input type="text" id="nApoDni" maxlength="8"/></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="cerrarModalAlumno()">Cancelar</button>
+        <button class="btn btn-primary" onclick="registrarAlumnoPos()">Registrar Alumno →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ticket Térmico 80mm -->
+  <div class="modal-bg" id="modalTicket">
+    <div class="modal">
+      <h3 style="font-size:15px;font-weight:800;color:#166534;margin-bottom:10px;">✅ Venta Cobrada &amp; Emitida en SUNAT</h3>
+      <div class="ticket-80mm" id="ticketBody"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Imprimir 80mm</button>
+        <button class="btn btn-primary" onclick="document.getElementById('modalTicket').classList.remove('open')">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Forca &amp; Fitness S.A.C. · Terminal POS Presencial (APU3)</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Recepcionista', 'Tesorero', 'Director']);
+    if (usuario) initNav('index.html');
+
+    var sedes = [], planes = [], stock = [], alumnos = [], carrito = [];
+    var metodoPago = 'efectivo';
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F1') { e.preventDefault(); selMetodo('efectivo'); }
+      if (e.key === 'F2') { e.preventDefault(); selMetodo('yape'); }
+      if (e.key === 'F3') { e.preventDefault(); selMetodo('tarjeta'); }
+      if (e.key === 'F4') { e.preventDefault(); abrirModalAlumno(); }
+    });
+
+    function selMetodo(m) {
+      metodoPago = m;
+      ['efectivo','yape','tarjeta','transferencia'].forEach(function(k) {
+        document.getElementById('pm-' + k).classList.toggle('active', k === m);
+      });
+    }
+
+    function toggleRuc() {
+      document.getElementById('rucFields').style.display = document.getElementById('selComp').value === 'Factura' ? 'grid' : 'none';
+    }
+
+    async function init() {
+      try {
+        var [rS, rP, rA] = await Promise.all([
+          fetch(API_BASE + '/api/sedes'),
+          fetch(API_BASE + '/api/planes'),
+          fetch(API_BASE + '/api/alumnos', { headers: apiHeaders() })
+        ]);
+        sedes = await rS.json();
+        planes = await rP.json();
+        alumnos = await rA.json();
+
+        document.getElementById('selSede').innerHTML = sedes.map(function(s) {
+          return '<option value="' + s.id + '"' + (s.id === usuario.sede_id ? ' selected' : '') + '>' + s.nombre + '</option>';
+        }).join('');
+
+        document.getElementById('gridPlanes').innerHTML = planes.map(function(p) {
+          return '<button type="button" class="prod-btn" onclick="agregarPlan(\'' + p.codigo + '\')">' +
+            '<div class="p-cat">' + p.duracion_meses + ' MES(ES)' + (p.incluye_combo ? ' · COMBO AFF' : '') + '</div>' +
+            '<div class="p-name">' + p.nombre + '</div>' +
+            '<div class="p-price">S/ ' + Number(p.precio).toFixed(2) + '</div></button>';
+        }).join('');
+
+        filtrarAlumnos();
+        cargarStock();
+      } catch (e) {
+        toast('Error inicializando POS: ' + e.message);
+      }
+    }
+
+    async function cargarStock() {
+      var sid = document.getElementById('selSede').value || 1;
+      try {
+        var res = await fetch(API_BASE + '/api/inventario/stock?sede_id=' + sid, { headers: apiHeaders() });
+        stock = await res.json();
+        document.getElementById('gridStock').innerHTML = stock.map(function(s) {
+          return '<button type="button" class="prod-btn" onclick="agregarProducto(' + s.producto_id + ')">' +
+            '<div class="p-cat">' + (s.categoria || 'GEAR') + ' · Stock: ' + s.cantidad_disponible + '</div>' +
+            '<div class="p-name">' + s.nombre + ' (' + s.talla + ')</div>' +
+            '<div class="p-price">S/ ' + Number(s.precio_venta).toFixed(2) + '</div></button>';
+        }).join('');
+      } catch {}
+    }
+
+    function filtrarAlumnos() {
+      var q = document.getElementById('qAlumno').value.toLowerCase();
+      var list = alumnos.filter(function(a) {
+        return !q || (a.nombre + ' ' + (a.apellido_paterno || '') + ' ' + a.dni).toLowerCase().includes(q);
+      });
+      document.getElementById('selAlumno').innerHTML = list.map(function(a) {
+        return '<option value="' + a.id + '">' + a.nombre + ' ' + (a.apellido_paterno || '') + ' — DNI ' + a.dni + '</option>';
+      }).join('');
+    }
+
+    function agregarPlan(codigo) {
+      var p = planes.find(function(x){ return x.codigo === codigo; });
+      if (!p) return;
+      carrito = carrito.filter(function(x){ return x.tipo !== 'plan'; });
+      carrito.unshift({
+        tipo: 'plan',
+        codigo: p.codigo,
+        nombre: p.nombre,
+        precio: Number(p.precio),
+        duracion_meses: p.duracion_meses,
+        es_combo_aff: Boolean(p.incluye_combo),
+        cantidad: 1
+      });
+      renderCarrito();
+    }
+
+    function agregarProducto(prodId) {
+      var p = stock.find(function(x){ return x.producto_id === prodId; });
+      if (!p) return;
+      if (p.cantidad_disponible <= 0) return toast('⚠️ Sin stock disponible en esta sede');
+      var ex = carrito.find(function(x){ return x.tipo === 'gear' && x.producto_id === prodId; });
+      if (ex) ex.cantidad += 1;
+      else carrito.push({ tipo: 'gear', producto_id: prodId, nombre: p.nombre + ' (' + p.talla + ')', precio: Number(p.precio_venta), cantidad: 1 });
+      renderCarrito();
+    }
+
+    function limpiarCarrito() { carrito = []; renderCarrito(); }
+
+    function renderCarrito() {
+      var box = document.getElementById('cartList');
+      if (!carrito.length) {
+        box.innerHTML = '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:12px;">Selecciona un plan o producto del catálogo.</div>';
+      } else {
+        box.innerHTML = carrito.map(function(item, i) {
+          return '<div class="cart-row">' +
+            '<div><strong>' + item.nombre + '</strong><div style="font-size:11px;color:#6b7280;">x' + item.cantidad + ' · S/ ' + item.precio.toFixed(2) + '</div></div>' +
+            '<div><strong>S/ ' + (item.precio * item.cantidad).toFixed(2) + '</strong> <button style="border:none;background:none;color:#dc2626;cursor:pointer;font-weight:700;" onclick="quitarItem(' + i + ')">✕</button></div>' +
+          '</div>';
+        }).join('');
+      }
+      var tot = carrito.reduce(function(a, x){ return a + x.precio * x.cantidad; }, 0);
+      var sub = tot / 1.18;
+      var igv = tot - sub;
+      document.getElementById('cSub').textContent = 'S/ ' + sub.toFixed(2);
+      document.getElementById('cIgv').textContent = 'S/ ' + igv.toFixed(2);
+      document.getElementById('cTot').textContent = 'S/ ' + tot.toFixed(2);
+    }
+
+    function quitarItem(idx) { carrito.splice(idx, 1); renderCarrito(); }
+
+    async function cobrarPos() {
+      if (!carrito.length) return toast('Agrega un plan o artículo al ticket');
+      var alumnoId = Number(document.getElementById('selAlumno').value);
+      if (!alumnoId) return toast('Selecciona un alumno');
+
+      var planItem = carrito.find(function(x){ return x.tipo === 'plan'; });
+      var gearItems = carrito.filter(function(x){ return x.tipo === 'gear'; });
+      var tot = carrito.reduce(function(a, x){ return a + x.precio * x.cantidad; }, 0);
+      var concepto = carrito.map(function(x){ return x.nombre + (x.cantidad > 1 ? ' x' + x.cantidad : ''); }).join(' + ');
+
+      var btn = document.getElementById('btnCobrar');
+      btn.disabled = true; btn.textContent = 'Procesando POS...';
+      try {
+        var idemKey = 'POS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+        var res = await fetch(API_BASE + '/api/pagos', {
+          method: 'POST',
+          headers: apiHeaders({ 'Idempotency-Key': idemKey }),
+          body: JSON.stringify({
+            alumno_id: alumnoId,
+            sede_id: Number(document.getElementById('selSede').value || 1),
+            monto: +tot.toFixed(2),
+            concepto: concepto,
+            medio_pago: metodoPago,
+            tipo_comprobante: document.getElementById('selComp').value,
+            ruc_cliente: document.getElementById('pRuc').value.trim() || null,
+            razon_social_cliente: document.getElementById('pRaz').value.trim() || null,
+            plan_codigo: planItem ? planItem.codigo : null,
+            duracion_meses: planItem ? planItem.duracion_meses : null,
+            disciplina: document.getElementById('selDisc').value,
+            es_combo_aff: planItem ? planItem.es_combo_aff : false,
+            talla_combo: planItem && planItem.es_combo_aff ? document.getElementById('selTalla').value : null,
+            items_pos: gearItems.map(function(g){ return { producto_id: g.producto_id, cantidad: g.cantidad }; }),
+            aprobado_en_pos: true
+          })
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error cobrando en POS');
+
+        mostrarTicket80mm(d);
+        limpiarCarrito();
+        cargarStock();
+        toast('✅ Venta cobrada y comprobante SUNAT emitido');
+      } catch (e) {
+        toast('❌ ' + e.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Cobrar y Emitir Ticket SUNAT →';
+      }
+    }
+
+    function mostrarTicket80mm(d) {
+      var c = d.comprobante || {};
+      var qr = renderQrSvg((c.serie_numero || 'B001') + '|' + (c.hash_sunat || d.id), 84);
+      document.getElementById('ticketBody').innerHTML =
+        '<div style="text-align:center;font-weight:700;">FORCA &amp; FITNESS S.A.C.<br/>RUC: 20601234567</div>' +
+        '<hr style="margin:8px 0;border:none;border-top:1px dashed #9ca3af;"/>' +
+        '<div>COMPROBANTE: <strong>' + (c.serie_numero || 'B001-0001') + '</strong></div>' +
+        '<div>ESTADO SUNAT: ' + (c.estado_sunat || 'ACEPTADO_CDR') + '</div>' +
+        '<div>CONCEPTO: ' + (d.concepto || 'Venta POS') + '</div>' +
+        '<div>MEDIO: ' + String(d.medio_pago || '').toUpperCase() + '</div>' +
+        '<div>TOTAL: <strong>S/ ' + Number(d.monto || 0).toFixed(2) + '</strong></div>' +
+        '<div style="text-align:center;margin-top:10px;">' + qr + '</div>' +
+        '<div style="font-size:10px;text-align:center;color:#4b5563;">Hash: ' + (c.hash_sunat || 'POS-UBL-2.1').slice(0, 28) + '...</div>';
+      document.getElementById('modalTicket').classList.add('open');
+    }
+
+    function abrirModalAlumno() { document.getElementById('modalAlumno').classList.add('open'); }
+    function cerrarModalAlumno() { document.getElementById('modalAlumno').classList.remove('open'); }
+    function checkMenor() {
+      var nac = document.getElementById('nNac').value;
+      if (!nac) return;
+      var age = Math.floor((Date.now() - new Date(nac).getTime()) / (365.25 * 86400000));
+      document.getElementById('menorBox').style.display = age < 18 ? 'block' : 'none';
+    }
+
+    async function registrarAlumnoPos() {
+      try {
+        var payload = {
+          nombre: document.getElementById('nNom').value.trim(),
+          apellido_paterno: document.getElementById('nPat').value.trim(),
+          dni: document.getElementById('nDni').value.trim(),
+          email: document.getElementById('nEmail').value.trim(),
+          telefono: document.getElementById('nTel').value.trim(),
+          fecha_nacimiento: document.getElementById('nNac').value,
+          password: 'Forca' + document.getElementById('nDni').value.trim().slice(-4),
+          sede_id: Number(document.getElementById('selSede').value || 1),
+          disciplina: document.getElementById('selDisc').value,
+          apoderado_nombre: document.getElementById('nApoNom').value.trim(),
+          apoderado_dni: document.getElementById('nApoDni').value.trim(),
+          acepta_lpdp: true
+        };
+        var res = await fetch(API_BASE + '/api/auth/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error registrando alumno');
+        cerrarModalAlumno();
+        toast('✅ Alumno registrado (Pass temporal: ' + payload.password + ')');
+        var rA = await fetch(API_BASE + '/api/alumnos', { headers: apiHeaders() });
+        alumnos = await rA.json();
+        filtrarAlumnos();
+        if (d.usuario && d.usuario.id) document.getElementById('selAlumno').value = d.usuario.id;
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2700);
+    }
+
+    init();
+  </script>
+</body>
+</html>

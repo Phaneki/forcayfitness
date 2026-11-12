@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alumnos · Customer 360 — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 11px;font-size:12.5px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:24px 28px;}
+    .head-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;}
+    .cols{display:grid;grid-template-columns:1.35fr 360px;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+    .filters input,.filters select{border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 11px;font-size:13px;background:#fff;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    tr.row-sel{background:#eff6ff;cursor:pointer;}
+    tr:hover{background:#f8fafc;cursor:pointer;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-warn{background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-bad{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .btn{padding:8px 13px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;}
+    .btn-primary{background:#0d2d5e;color:#fff;}
+    .btn-outline{background:#fff;color:#0d2d5e;border:1.5px solid #cbd5e1;}
+    .kv{margin-bottom:9px;font-size:12.5px;}
+    .kv label{display:block;font-size:10.5px;color:#6b7280;text-transform:uppercase;}
+    .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:999;}
+    .modal-bg.open{display:flex;}
+    .modal{background:#fff;border-radius:14px;padding:22px;width:92%;max-width:480px;max-height:90vh;overflow-y:auto;}
+    .fgroup{margin-bottom:10px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;margin-bottom:4px;}
+    .fgroup input,.fgroup select{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:950px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>CUSTOMER 360 Y CONGELAMIENTOS</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="head-row">
+      <div>
+        <h1 class="page-title">Directorio de Alumnos (Customer 360)</h1>
+        <p style="font-size:13px;color:#6b7280;">Identidad, grado marcial, consentimiento LPDP menores y solicitudes de congelamiento.</p>
+      </div>
+      <button class="btn btn-primary" onclick="document.getElementById('modalNew').classList.add('open')">+ Nuevo Alumno</button>
+    </div>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="filters">
+            <input type="text" id="qSearch" placeholder="Buscar por nombre, DNI o email..." oninput="renderTabla()"/>
+            <select id="fSede" onchange="renderTabla()"><option value="">Todas las Sedes</option></select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Alumno</th><th>Sede</th><th>Disciplina / Grado</th><th>Plan / Venc.</th><th>Estado</th></tr></thead>
+              <tbody id="tbodyAlumnos"><tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:16px;">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">❄️ Solicitudes de Congelamiento de Matrícula</div>
+          <table>
+            <thead><tr><th>Alumno</th><th>Disciplina</th><th>Motivo</th><th>Días</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody id="tbodyCong"><tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:14px;">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="position:sticky;top:16px;" id="sidebar360">
+        <div class="card-title">🪪 Ficha 360 Seleccionada</div>
+        <div style="font-size:12.5px;color:#9ca3af;text-align:center;padding:24px 0;">Haz clic en un alumno de la tabla para inspeccionar su carnet QR y consentimiento LPDP.</div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-bg" id="modalNew">
+    <div class="modal">
+      <h3 style="font-size:16px;font-weight:800;color:#0d2d5e;margin-bottom:12px;">👤 Registrar Nuevo Alumno</h3>
+      <form onsubmit="crearAlumno(event)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="fgroup"><label>Nombre</label><input type="text" id="nNom" required/></div>
+          <div class="fgroup"><label>Apellido Paterno</label><input type="text" id="nPat" required/></div>
+          <div class="fgroup"><label>DNI</label><input type="text" id="nDni" maxlength="12" required/></div>
+          <div class="fgroup"><label>Fecha Nacimiento</label><input type="date" id="nNac" value="1999-05-10" onchange="toggleApo()"/></div>
+          <div class="fgroup"><label>Correo</label><input type="email" id="nEmail" required/></div>
+          <div class="fgroup"><label>Teléfono</label><input type="text" id="nTel"/></div>
+          <div class="fgroup"><label>Sede</label><select id="nSede"></select></div>
+          <div class="fgroup"><label>Disciplina</label><select id="nDisc"><option>Brazilian Jiu-Jitsu</option><option>Muay Thai</option><option>Boxeo</option><option>Capoeira</option><option>Acondicionamiento</option></select></div>
+        </div>
+        <div id="apoBox" style="display:none;background:#eff6ff;padding:10px;border-radius:8px;margin-bottom:10px;">
+          <div style="font-size:11.5px;font-weight:700;color:#1e3a8a;margin-bottom:6px;">Apoderado Menor de Edad (Ley N° 29733)</div>
+          <div class="fgroup"><label>Nombre Apoderado</label><input type="text" id="nApoNom"/></div>
+          <div class="fgroup"><label>DNI Apoderado</label><input type="text" id="nApoDni" maxlength="8"/></div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('modalNew').classList.remove('open')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Alumno →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>Forca &amp; Fitness S.A.C. · Customer 360 (APP1 / APP2)</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Director', 'Tesorero', 'Recepcionista']);
+    if (usuario) initNav('alumnos.html');
+
+    var alumnos = [], selectedId = null;
+
+    async function cargar() {
+      try {
+        var [rS, rA, rC] = await Promise.all([
+          fetch(API_BASE + '/api/sedes'),
+          fetch(API_BASE + '/api/alumnos', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/congelamientos', { headers: apiHeaders() })
+        ]);
+        var sedes = await rS.json();
+        alumnos = await rA.json();
+        var congs = await rC.json();
+
+        document.getElementById('fSede').innerHTML = '<option value="">Todas las Sedes</option>' +
+          sedes.map(function(s){ return '<option value="' + s.id + '">' + s.nombre + '</option>'; }).join('');
+        document.getElementById('nSede').innerHTML = sedes.map(function(s){ return '<option value="' + s.id + '">' + s.nombre + '</option>'; }).join('');
+
+        renderTabla();
+        if (alumnos.length && !selectedId) seleccionar(alumnos[0].id);
+
+        document.getElementById('tbodyCong').innerHTML = congs.length
+          ? congs.map(function(c) {
+              var pend = c.estado === 'pendiente';
+              return '<tr>' +
+                '<td><strong>' + c.alumno_nombre + '</strong></td>' +
+                '<td>' + c.disciplina + '</td>' +
+                '<td>' + c.motivo + '</td>' +
+                '<td>' + c.dias_solicitados + ' d</td>' +
+                '<td><span class="' + (c.estado === 'aprobado' ? 'pill-ok' : pend ? 'pill-warn' : 'pill-bad') + '">' + c.estado.toUpperCase() + '</span></td>' +
+                '<td>' + (pend ? '<button class="btn btn-primary" style="padding:4px 8px;font-size:11px;" onclick="procesarCong(' + c.id + ',\'aprobado\')">Aprobar</button> <button class="btn btn-outline" style="padding:4px 8px;font-size:11px;" onclick="procesarCong(' + c.id + ',\'rechazado\')">Rechazar</button>' : '—') + '</td>' +
+              '</tr>';
+            }).join('')
+          : '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:14px;">Sin solicitudes de congelamiento.</td></tr>';
+      } catch (e) { console.error(e); }
+    }
+
+    function renderTabla() {
+      var q = document.getElementById('qSearch').value.toLowerCase();
+      var sid = document.getElementById('fSede').value;
+      var list = alumnos.filter(function(a) {
+        if (sid && String(a.sede_id) !== sid) return false;
+        if (q && !(a.nombre + ' ' + (a.apellido_paterno || '') + ' ' + a.dni + ' ' + a.email).toLowerCase().includes(q)) return false;
+        return true;
+      });
+      document.getElementById('tbodyAlumnos').innerHTML = list.map(function(a) {
+        var activo = a.estado_membresia === 'activa';
+        return '<tr class="' + (a.id === selectedId ? 'row-sel' : '') + '" onclick="seleccionar(' + a.id + ')">' +
+          '<td><strong>' + a.nombre + ' ' + (a.apellido_paterno || '') + '</strong><div style="font-size:11px;color:#6b7280;">DNI ' + a.dni + ' · ' + a.email + '</div></td>' +
+          '<td>' + (a.sede_nombre || 'Sede') + '</td>' +
+          '<td>' + (a.disciplina || 'BJJ') + '<div style="font-size:11px;color:#6b7280;">' + (a.grado_actual || '—') + '</div></td>' +
+          '<td>' + (a.plan_nombre || 'Sin plan') + '<div style="font-size:11px;color:#6b7280;">' + (a.fecha_fin_membresia ? String(a.fecha_fin_membresia).slice(0,10) : '—') + '</div></td>' +
+          '<td><span class="' + (activo ? 'pill-ok' : 'pill-bad') + '">' + (activo ? 'ACTIVA' : (a.estado_membresia || 'INACTIVA').toUpperCase()) + '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function seleccionar(id) {
+      selectedId = id;
+      var a = alumnos.find(function(x){ return x.id === id; });
+      if (!a) return;
+      renderTabla();
+      var qrSvg = renderQrSvg(a.qr_token || ('QR-' + a.id), 120);
+      document.getElementById('sidebar360').innerHTML =
+        '<div class="card-title"><span>🪪 Customer 360</span><span class="' + (a.acceso_habilitado !== false ? 'pill-ok' : 'pill-bad') + '">' + (a.acceso_habilitado !== false ? 'HABILITADO' : 'BLOQUEADO') + '</span></div>' +
+        '<div style="text-align:center;margin-bottom:12px;">' + qrSvg + '<div style="font-family:monospace;font-size:11px;color:#0d2d5e;margin-top:4px;">' + (a.qr_token || '—') + '</div></div>' +
+        '<div class="kv"><label>Alumno</label><strong>' + a.nombre + ' ' + (a.apellido_paterno || '') + '</strong></div>' +
+        '<div class="kv"><label>DNI / Sede</label><strong>' + a.dni + ' · ' + (a.sede_nombre || 'Sede Surco') + '</strong></div>' +
+        '<div class="kv"><label>Grado Actual</label><strong>' + (a.grado_actual || 'En evaluación') + '</strong></div>' +
+        '<div class="kv"><label>Combo AFF</label><strong>' + (a.es_combo_aff ? (a.combo_despachado ? 'Entregado ✓' : 'Pendiente entrega (' + (a.talla_combo || 'A2') + ')') : 'No aplica') + '</strong></div>' +
+        '<div class="kv"><label>LPDP Menores (Ley N° 29733)</label><strong>' + (a.es_menor ? (a.apoderado_nombre ? 'Validado: ' + a.apoderado_nombre : 'Pendiente firma') : 'Titular mayor de edad') + '</strong></div>' +
+        '<a href="control_acceso.html" class="btn btn-outline" style="width:100%;text-align:center;display:block;text-decoration:none;margin-top:10px;">Gestionar Acceso Torniquete →</a>';
+    }
+
+    async function procesarCong(id, estado) {
+      try {
+        var res = await fetch(API_BASE + '/api/congelamientos/' + id, {
+          method: 'PUT',
+          headers: apiHeaders(),
+          body: JSON.stringify({ estado: estado })
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'No permitido para tu rol');
+        toast('✅ Solicitud marcada como ' + estado);
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    function toggleApo() {
+      var nac = document.getElementById('nNac').value;
+      var age = Math.floor((Date.now() - new Date(nac).getTime()) / (365.25 * 86400000));
+      document.getElementById('apoBox').style.display = age < 18 ? 'block' : 'none';
+    }
+
+    async function crearAlumno(ev) {
+      ev.preventDefault();
+      try {
+        var dni = document.getElementById('nDni').value.trim();
+        var res = await fetch(API_BASE + '/api/auth/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre: document.getElementById('nNom').value.trim(),
+            apellido_paterno: document.getElementById('nPat').value.trim(),
+            dni: dni,
+            fecha_nacimiento: document.getElementById('nNac').value,
+            email: document.getElementById('nEmail').value.trim(),
+            telefono: document.getElementById('nTel').value.trim(),
+            password: 'Forca' + dni.slice(-4),
+            sede_id: Number(document.getElementById('nSede').value),
+            disciplina: document.getElementById('nDisc').value,
+            apoderado_nombre: document.getElementById('nApoNom').value.trim(),
+            apoderado_dni: document.getElementById('nApoDni').value.trim(),
+            acepta_lpdp: true
+          })
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error registrando');
+        document.getElementById('modalNew').classList.remove('open');
+        toast('✅ Alumno creado correctamente');
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargar();
+  </script>
+</body>
+</html>

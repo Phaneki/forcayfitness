@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tesorería y Facturación SUNAT — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 11px;font-size:12.5px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:24px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+    .kpi{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;}
+    .kpi-label{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;}
+    .kpi-val{font-size:22px;font-weight:800;color:#0d2d5e;margin-top:6px;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:18px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-pend{background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-bad{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .btn{padding:6px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;}
+    .btn-primary{background:#0d2d5e;color:#fff;}
+    .btn-outline{background:#fff;color:#0d2d5e;border:1.5px solid #cbd5e1;}
+    .btn-danger{background:#fee2e2;color:#991b1b;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:850px){.kpis{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>CMM1 · TESORERÍA Y FACTURACIÓN SUNAT</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Monitor de Conciliación, SUNAT UBL 2.1 y Planilla</h1>
+    <p class="page-sub">Aprobación de pagos presenciales/transferencia, descarga XML CDR y liquidación de honorarios docentes.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-label">Recaudación Aprobada</div><div class="kpi-val" id="kRec">S/ 0.00</div></div>
+      <div class="kpi"><div class="kpi-label">Conciliación Auto Webhook</div><div class="kpi-val" id="kAuto">0</div></div>
+      <div class="kpi"><div class="kpi-label">Pendientes por Validar</div><div class="kpi-val" id="kPend">0</div></div>
+      <div class="kpi"><div class="kpi-label">Comprobantes SUNAT CDR</div><div class="kpi-val" id="kComp">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⏳ Pagos Pendientes de Validación Manual (Transferencia / Efectivo)</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Alumno</th><th>Sede</th><th>Concepto</th><th>Medio</th><th>Monto</th><th>Acciones</th></tr></thead>
+          <tbody id="tbodyPendientes"><tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:14px;">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧾 Comprobantes Electrónicos Emitidos (UBL 2.1 SUNAT)</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Serie</th><th>Tipo</th><th>Cliente / RUC</th><th>Concepto</th><th>Total (inc. IGV)</th><th>Estado SUNAT</th><th>XML</th></tr></thead>
+          <tbody id="tbodyComp"><tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:14px;">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="planillaCard">
+      <div class="card-title">🥋 Planilla de Honorarios Docentes (18 Instructores)</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Instructor</th><th>Sede / Disc.</th><th>Periodo</th><th>Horas</th><th>Monto Total</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody id="tbodyPlanilla"><tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:14px;">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 Historial Completo de Pagos</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>ID</th><th>Alumno</th><th>Concepto</th><th>Medio</th><th>Conciliación</th><th>Monto</th><th>Estado</th><th>Serie UBL</th></tr></thead>
+          <tbody id="tbodyPagos"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · CMM1 Tesorería y Facturación Electrónica</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Director', 'Tesorero', 'Recepcionista']);
+    if (usuario) initNav('tesoreria.html');
+
+    async function cargarTodo() {
+      try {
+        var reqs = [
+          fetch(API_BASE + '/api/pagos/pendientes', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/pagos', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/comprobantes', { headers: apiHeaders() })
+        ];
+        var canPlanilla = ['Director', 'Tesorero'].includes(usuario.rol);
+        if (canPlanilla) reqs.push(fetch(API_BASE + '/api/tesoreria/planilla', { headers: apiHeaders() }));
+
+        var res = await Promise.all(reqs);
+        var pend = await res[0].json();
+        var pagos = await res[1].json();
+        var comp = await res[2].json();
+        var planilla = canPlanilla ? await res[3].json() : [];
+
+        var aprobados = pagos.filter(function(p){ return p.estado === 'aprobado'; });
+        var totalRec = aprobados.reduce(function(a, p){ return a + Number(p.monto || 0); }, 0);
+        document.getElementById('kRec').textContent = 'S/ ' + totalRec.toFixed(2);
+        document.getElementById('kAuto').textContent = pagos.filter(function(p){ return p.conciliacion_automatica; }).length;
+        document.getElementById('kPend').textContent = pend.length;
+        document.getElementById('kComp').textContent = comp.length;
+
+        document.getElementById('tbodyPendientes').innerHTML = pend.length
+          ? pend.map(function(p) {
+              return '<tr><td><strong>' + p.alumno + '</strong></td><td>' + (p.sede_nombre || 'Sede') + '</td><td>' + p.concepto + '</td><td>' + p.medio_pago + '</td><td><strong>S/ ' + Number(p.monto).toFixed(2) + '</strong></td>' +
+                '<td style="display:flex;gap:6px;"><button class="btn btn-primary" onclick="confirmarPago(' + p.id + ')">✓ Aprobar y Emitir UBL</button><button class="btn btn-danger" onclick="rechazarPago(' + p.id + ')">✕ Rechazar</button></td></tr>';
+            }).join('')
+          : '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:14px;">Sin pagos pendientes de conciliación manual.</td></tr>';
+
+        document.getElementById('tbodyComp').innerHTML = comp.map(function(c) {
+          return '<tr><td><strong>' + c.serie_numero + '</strong></td><td>' + (c.tipo === '01' ? 'Factura' : 'Boleta') + '</td><td>' + (c.razon_social_cliente || c.cliente_nombre) + ' <span style="color:#6b7280;">(' + (c.ruc_cliente || c.cliente_dni) + ')</span></td><td>' + c.concepto + '</td><td><strong>S/ ' + Number(c.total).toFixed(2) + '</strong></td><td><span class="pill-ok">' + c.estado_sunat + '</span></td><td><button class="btn btn-outline" onclick="descargarXml(' + c.id + ',\'' + c.serie_numero + '\')">XML UBL</button></td></tr>';
+        }).join('');
+
+        if (!canPlanilla) {
+          document.getElementById('planillaCard').style.display = 'none';
+        } else {
+          document.getElementById('tbodyPlanilla').innerHTML = planilla.map(function(l) {
+            return '<tr><td><strong>' + l.profesor_nombre + '</strong></td><td>' + (l.sede_nombre || '') + ' · ' + (l.disciplina || '') + '</td><td>' + l.periodo + '</td><td>' + Number(l.horas_totales).toFixed(1) + ' h</td><td><strong>S/ ' + Number(l.monto_total).toFixed(2) + '</strong></td><td><span class="' + (l.estado === 'pagada' ? 'pill-ok' : 'pill-pend') + '">' + l.estado.toUpperCase() + '</span></td><td>' + (l.estado === 'pagada' ? '✓ Pagada' : '<button class="btn btn-primary" onclick="pagarPlanilla(' + l.id + ')">Pagar →</button>') + '</td></tr>';
+          }).join('');
+        }
+
+        document.getElementById('tbodyPagos').innerHTML = pagos.map(function(p) {
+          var cls = p.estado === 'aprobado' ? 'pill-ok' : p.estado === 'pendiente' ? 'pill-pend' : 'pill-bad';
+          return '<tr><td>#' + p.id + '</td><td>' + p.alumno + '</td><td>' + p.concepto + '</td><td>' + p.medio_pago + '</td><td>' + (p.conciliacion_automatica ? '⚡ Webhook Auto' : 'Manual / POS') + '</td><td><strong>S/ ' + Number(p.monto).toFixed(2) + '</strong></td><td><span class="' + cls + '">' + p.estado.toUpperCase() + '</span></td><td>' + (p.serie_numero || '—') + '</td></tr>';
+        }).join('');
+      } catch (e) { toast('Error cargando tesorería: ' + e.message); }
+    }
+
+    async function confirmarPago(id) {
+      try {
+        var r = await fetch(API_BASE + '/api/pagos/' + id + '/confirmar', { method: 'PUT', headers: apiHeaders() });
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Error confirmando');
+        toast('✅ Pago confirmado y comprobante emitido');
+        cargarTodo();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    async function rechazarPago(id) {
+      try {
+        var r = await fetch(API_BASE + '/api/pagos/' + id + '/rechazar', { method: 'PUT', headers: apiHeaders() });
+        if (!r.ok) throw new Error('Error rechazando pago');
+        toast('Pago marcado como rechazado');
+        cargarTodo();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    async function pagarPlanilla(id) {
+      try {
+        var r = await fetch(API_BASE + '/api/tesoreria/planilla/' + id + '/pagar', { method: 'POST', headers: apiHeaders() });
+        if (!r.ok) throw new Error('Error pagando liquidación');
+        toast('✅ Honorarios marcados como pagados');
+        cargarTodo();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    async function descargarXml(id, serie) {
+      try {
+        var r = await fetch(API_BASE + '/api/comprobantes/' + id + '/xml', { headers: apiHeaders() });
+        if (!r.ok) throw new Error('No se pudo descargar XML');
+        var blob = await r.blob();
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a'); a.href = url; a.download = (serie || 'ubl') + '.xml';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargarTodo();
+  </script>
+</body>
+</html>
+
