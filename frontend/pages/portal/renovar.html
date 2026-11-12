@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planes y Combo AFF — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:940px;margin:0 auto;padding:26px 28px;}
+    .back-link{font-size:13px;color:#374151;text-decoration:none;display:inline-block;margin-bottom:12px;}
+    h1{font-size:28px;font-weight:800;color:#0d2d5e;margin-bottom:6px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:20px;}
+    .main-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px 28px;margin-bottom:20px;}
+    .section-label{font-size:11px;font-weight:700;color:#6b7280;letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;color:#374151;margin-bottom:5px;}
+    .fgroup select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;}
+    .periodo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+    .periodo-card{border:2px solid #e5e7eb;border-radius:12px;padding:16px;cursor:pointer;position:relative;transition:all .15s;}
+    .periodo-card:hover{border-color:#0d2d5e;}
+    .periodo-card.selected{border-color:#0d2d5e;background:#eff6ff;}
+    .combo-badge{background:#7c3aed;color:#fff;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;display:inline-block;margin-bottom:6px;}
+    .periodo-title{font-size:14px;font-weight:800;color:#111;margin-bottom:4px;}
+    .periodo-price{font-size:22px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .periodo-sub{font-size:11.5px;color:#6b7280;line-height:1.4;}
+    .talla-box{background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:16px;margin-bottom:20px;display:none;}
+    .talla-box.show{display:block;}
+    .talla-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+    .talla-btn{padding:7px 14px;border:1.5px solid #cbd5e1;background:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+    .talla-btn.active{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+    .total-bar{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .total-amt{font-size:28px;font-weight:800;color:#0d2d5e;}
+    .btn-pagar{background:#0d2d5e;color:#fff;border:none;border-radius:9px;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer;}
+    .btn-pagar:hover{background:#0a2448;}
+    footer{text-align:center;padding:16px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:750px){.periodo-grid,.form-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>PORTAL DE ALUMNOS</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar" onclick="location.href='perfil.html'">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <a class="back-link" href="mis-matriculas.html">← Volver a Mis Matrículas</a>
+    <h1>Contratar Plan o Combo AFF</h1>
+    <p class="page-sub">Elige tu sede, disciplina, período de membresía o el Combo AFF (Plan + Indumentaria oficial AFF Gear).</p>
+
+    <div class="main-card">
+      <div class="section-label">1. Selecciona Sede y Disciplina</div>
+      <div class="form-grid">
+        <div class="fgroup">
+          <label>📍 Sede de Entrenamiento</label>
+          <select id="selSede">
+            <option value="1">Sede Surco (Av. Caminos del Inca 1420)</option>
+            <option value="2">Sede La Molina (Av. Javier Prado Este 5890)</option>
+            <option value="3">Sede San Borja (Av. Aviación 2945)</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label>🥋 Disciplina</label>
+          <select id="selDisc" onchange="actualizarTallas()">
+            <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+            <option value="Muay Thai">Muay Thai</option>
+            <option value="Boxeo">Boxeo</option>
+            <option value="Capoeira">Capoeira</option>
+            <option value="Acondicionamiento">Acondicionamiento</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">2. Elige tu Plan Oficial</div>
+      <div class="periodo-grid" id="planesGrid">
+        <div style="grid-column:1/-1;color:#9ca3af;">Cargando planes…</div>
+      </div>
+
+      <!-- SELECTOR DE TALLA COMBO AFF -->
+      <div class="talla-box" id="tallaBox">
+        <div style="font-size:13px;font-weight:800;color:#5b21b6;">🎒 Selector de Talla Reglamentaria — Combo AFF Gear</div>
+        <div style="font-size:12px;color:#6d28d9;margin-top:2px;" id="kitDesc">Incluye Kimono BJJ Pearl Weave oficial AFF. Recógelo en recepción al confirmar tu pago.</div>
+        <div class="talla-grid" id="tallaGrid"></div>
+      </div>
+
+      <div class="total-bar">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#6b7280;">TOTAL A PAGAR</div>
+          <div class="total-amt" id="totalAmt">S/. 150.00</div>
+          <div style="font-size:11.5px;color:#6b7280;" id="totalDetalle">Plan Mensual Regular · 1 mes · Vigencia hasta <strong id="vencePrev">—</strong></div>
+        </div>
+        <button class="btn-pagar" onclick="irAPagar()">Continuar a Checkout Yape / Tarjeta →</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>FORCA &amp; FITNESS S.A.C. · Surco · La Molina · San Borja · Versión 2.5.0</footer>
+
+  <script src="../auth.js"></script>
+  <script>
+    requireRol(['Alumno', 'Director', 'Recepcionista']);
+    initNav();
+
+    var planes = [];
+    var planSeleccionado = null;
+    var tallaSeleccionada = 'A2';
+
+    async function cargarPlanes() {
+      var res = await fetch(API_BASE + '/api/planes');
+      planes = await res.json();
+      var urlParams = new URLSearchParams(location.search);
+      var preCod = urlParams.get('plan') || 'MENSUAL';
+
+      var grid = document.getElementById('planesGrid');
+      grid.innerHTML = planes.map(function(p) {
+        var isCombo = p.incluye_combo_gear;
+        return '<div class="periodo-card" id="plan-' + p.codigo + '" onclick="selPlan(\'' + p.codigo + '\')">' +
+          (isCombo ? '<span class="combo-badge">⭐ COMBO AFF + GEAR</span>' : '') +
+          '<div class="periodo-title">' + p.nombre + '</div>' +
+          '<div class="periodo-price">S/. ' + Number(p.precio).toFixed(2) + '</div>' +
+          '<div class="periodo-sub">' + p.descripcion + '</div>' +
+        '</div>';
+      }).join('');
+
+      selPlan(preCod);
+    }
+
+    function selPlan(codigo) {
+      planSeleccionado = planes.find(function(p) { return p.codigo === codigo; }) || planes[0];
+      document.querySelectorAll('.periodo-card').forEach(function(c) { c.classList.remove('selected'); });
+      var card = document.getElementById('plan-' + planSeleccionado.codigo);
+      if (card) card.classList.add('selected');
+
+      document.getElementById('totalAmt').textContent = 'S/. ' + Number(planSeleccionado.precio).toFixed(2);
+      var f = new Date();
+      f.setMonth(f.getMonth() + Number(planSeleccionado.duracion_meses || 1));
+      var fStr = f.toLocaleDateString('es-PE', { day:'2-digit', month:'long', year:'numeric' });
+      document.getElementById('totalDetalle').innerHTML = planSeleccionado.nombre + ' (' + planSeleccionado.duracion_meses + ' mes/es) · Nueva vigencia: <strong>' + fStr + '</strong>';
+
+      document.getElementById('tallaBox').classList.toggle('show', Boolean(planSeleccionado.incluye_combo_gear));
+      actualizarTallas();
+    }
+
+    function actualizarTallas() {
+      var disc = document.getElementById('selDisc').value;
+      var tallas = ['S', 'M', 'L', 'XL'];
+      var desc = 'Incluye kit oficial AFF Gear para ' + disc + '.';
+      if (disc === 'Brazilian Jiu-Jitsu') {
+        tallas = ['A1', 'A2', 'A3', 'A4'];
+        desc = 'Incluye Kimono BJJ Pearl Weave oficial Forca & Fitness.';
+      } else if (disc === 'Boxeo' || disc === 'Muay Thai') {
+        tallas = ['10oz', '12oz', '14oz', '16oz'];
+        desc = 'Incluye Guantes Pro de Cuero + Vendas Elásticas 4.5m AFF.';
+      } else if (disc === 'Capoeira') {
+        tallas = ['P', 'M', 'G', 'GG'];
+        desc = 'Incluye Abadá oficial Capoeira Forca & Fitness + Cordel inicial.';
+      }
+      document.getElementById('kitDesc').textContent = desc;
+      if (!tallas.includes(tallaSeleccionada)) tallaSeleccionada = tallas[1] || tallas[0];
+
+      document.getElementById('tallaGrid').innerHTML = tallas.map(function(t) {
+        return '<button type="button" class="talla-btn ' + (t === tallaSeleccionada ? 'active' : '') + '" onclick="selTalla(\'' + t + '\')">' + t + '</button>';
+      }).join('');
+    }
+
+    function selTalla(t) {
+      tallaSeleccionada = t;
+      actualizarTallas();
+    }
+
+    function irAPagar() {
+      if (!planSeleccionado) return;
+      var sedeSel = document.getElementById('selSede');
+      var orden = {
+        plan_codigo: planSeleccionado.codigo,
+        plan_nombre: planSeleccionado.nombre,
+        duracion_meses: planSeleccionado.duracion_meses,
+        monto: Number(planSeleccionado.precio),
+        es_combo_aff: Boolean(planSeleccionado.incluye_combo_gear),
+        talla_combo: planSeleccionado.incluye_combo_gear ? tallaSeleccionada : null,
+        disciplina: document.getElementById('selDisc').value,
+        sede_id: Number(sedeSel.value),
+        sede_nombre: sedeSel.options[sedeSel.selectedIndex].text,
+        concepto: planSeleccionado.nombre + ' — ' + document.getElementById('selDisc').value + (planSeleccionado.incluye_combo_gear ? ' (Talla ' + tallaSeleccionada + ')' : ''),
+      };
+      localStorage.setItem('ordenCheckout', JSON.stringify(orden));
+      location.href = 'pagos.html';
+    }
+
+    cargarPlanes();
+  </script>
+</body>
+</html>
+

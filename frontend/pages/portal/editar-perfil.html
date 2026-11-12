@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Perfil y LPDP — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:860px;margin:0 auto;padding:26px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:20px;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:22px;margin-bottom:18px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:14px;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .fgroup{margin-bottom:12px;}
+    .fgroup label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;}
+    .fgroup input,.fgroup select{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;}
+    .legal-note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;font-size:12px;color:#1e3a8a;margin-top:8px;}
+    .btn{padding:10px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;text-decoration:none;display:inline-block;}
+    .btn-primary{background:#0d2d5e;color:#fff;}
+    .btn-outline{background:#fff;color:#0d2d5e;border:1.5px solid #cbd5e1;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    @media (max-width:700px){.grid2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>ACTUALIZACIÓN DE DATOS Y LPDP</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar" onclick="location.href='perfil.html'">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Editar Perfil</h1>
+    <p class="page-sub">Mantén tus datos actualizados para facturación SUNAT, emergencias médicas y cumplimiento LPDP.</p>
+
+    <form id="formPerfil" onsubmit="guardarCambios(event)">
+      <div class="card">
+        <div class="card-title">👤 Datos Personales y de Contacto</div>
+        <div class="grid2">
+          <div class="fgroup"><label>Nombre</label><input type="text" id="fNombre" required/></div>
+          <div class="fgroup"><label>Apellido Paterno</label><input type="text" id="fPat"/></div>
+          <div class="fgroup"><label>Apellido Materno</label><input type="text" id="fMat"/></div>
+          <div class="fgroup"><label>DNI</label><input type="text" id="fDni" maxlength="12"/></div>
+          <div class="fgroup"><label>Celular</label><input type="text" id="fTel"/></div>
+          <div class="fgroup"><label>Fecha de Nacimiento</label><input type="date" id="fNac"/></div>
+          <div class="fgroup">
+            <label>Género</label>
+            <select id="fGen">
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+              <option value="Otro">Otro / Prefiero no decir</option>
+            </select>
+          </div>
+          <div class="fgroup"><label>Dirección</label><input type="text" id="fDir"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔐 Cambiar Contraseña (Opcional)</div>
+        <div class="grid2">
+          <div class="fgroup"><label>Contraseña Actual</label><input type="password" id="fPassAct" placeholder="Sólo si deseas cambiarla"/></div>
+          <div class="fgroup"><label>Nueva Contraseña</label><input type="password" id="fPassNew" placeholder="Mínimo 6 caracteres"/></div>
+        </div>
+      </div>
+
+      <div class="card" id="cardLpdp">
+        <div class="card-title">⚖️ Protección de Datos Personales (Ley N° 29733 — Menores)</div>
+        <p style="font-size:12.5px;color:#6b7280;margin-bottom:12px;">Si el alumno es menor de 18 años o requiere registrar un apoderado autorizado para clases en el tatami y cámaras de seguridad, completa estos datos:</p>
+        <div class="grid2">
+          <div class="fgroup"><label>Nombre del Apoderado / Tutor</label><input type="text" id="tNombre" placeholder="Ej: Carlos Mendoza"/></div>
+          <div class="fgroup"><label>DNI del Apoderado</label><input type="text" id="tDni" maxlength="12"/></div>
+          <div class="fgroup"><label>Teléfono del Apoderado</label><input type="text" id="tTel"/></div>
+          <div class="fgroup">
+            <label>Parentesco</label>
+            <select id="tPar"><option value="Padre/Madre">Padre / Madre</option><option value="Tutor Legal">Tutor Legal</option></select>
+          </div>
+        </div>
+        <div class="legal-note">
+          Conforme a la <strong>Ley N° 29733</strong>, Forca &amp; Fitness S.A.C. protege tus datos biométricos, historial de salud y registros de video DVR con cifrado AES-256 y retención auditada.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <a href="perfil.html" class="btn btn-outline">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar Cambios →</button>
+      </div>
+    </form>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APP1 Identidad y Perfiles</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Alumno', 'Profesor', 'Recepcionista', 'Tesorero', 'Director']);
+    if (usuario) initNav('perfil.html');
+
+    async function cargarDatos() {
+      try {
+        var res = await fetch(API_BASE + '/api/usuarios/me', { headers: apiHeaders() });
+        var me = await res.json();
+        if (!res.ok) throw new Error(me.error || 'Error cargando datos');
+        document.getElementById('fNombre').value = me.nombre || '';
+        document.getElementById('fPat').value = me.apellido_paterno || '';
+        document.getElementById('fMat').value = me.apellido_materno || '';
+        document.getElementById('fDni').value = me.dni || '';
+        document.getElementById('fTel').value = me.telefono || '';
+        document.getElementById('fNac').value = me.fecha_nacimiento ? String(me.fecha_nacimiento).slice(0, 10) : '';
+        document.getElementById('fGen').value = me.genero || 'M';
+        document.getElementById('fDir').value = me.direccion || '';
+        if (me.consentimiento_lpdp) {
+          document.getElementById('tNombre').value = me.consentimiento_lpdp.apoderado_nombre || '';
+          document.getElementById('tDni').value = me.consentimiento_lpdp.apoderado_dni || '';
+          document.getElementById('tPar').value = me.consentimiento_lpdp.parentesco || 'Padre/Madre';
+        }
+      } catch (e) {
+        toast('Error: ' + e.message);
+      }
+    }
+
+    async function guardarCambios(ev) {
+      ev.preventDefault();
+      try {
+        var payload = {
+          nombre: document.getElementById('fNombre').value.trim(),
+          apellido_paterno: document.getElementById('fPat').value.trim(),
+          apellido_materno: document.getElementById('fMat').value.trim(),
+          dni: document.getElementById('fDni').value.trim(),
+          celular: document.getElementById('fTel').value.trim(),
+          fecha_nacimiento: document.getElementById('fNac').value || null,
+          genero: document.getElementById('fGen').value,
+          direccion: document.getElementById('fDir').value.trim(),
+        };
+        var pNew = document.getElementById('fPassNew').value;
+        var pAct = document.getElementById('fPassAct').value;
+        if (pNew) {
+          payload.password = pNew;
+          payload.password_actual = pAct;
+        }
+
+        var res = await fetch(API_BASE + '/api/usuarios/' + usuario.id, {
+          method: 'PUT',
+          headers: apiHeaders(),
+          body: JSON.stringify(payload)
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'No se pudo actualizar');
+
+        var tNombre = document.getElementById('tNombre').value.trim();
+        var tDni = document.getElementById('tDni').value.trim();
+        if (tNombre && tDni) {
+          var lRes = await fetch(API_BASE + '/api/lpdp/consentimiento', {
+            method: 'POST',
+            headers: apiHeaders(),
+            body: JSON.stringify({
+              usuario_id: usuario.id,
+              apoderado_nombre: tNombre,
+              apoderado_dni: tDni,
+              telefono_apoderado: document.getElementById('tTel').value.trim(),
+              parentesco: document.getElementById('tPar').value
+            })
+          });
+          if (!lRes.ok) {
+            var lErr = await lRes.json();
+            throw new Error(lErr.error || 'Error guardando consentimiento LPDP');
+          }
+        }
+
+        if (d.usuario) {
+          var updated = Object.assign({}, usuario, { nombre: d.usuario.nombre_completo || (payload.nombre + ' ' + payload.apellido_paterno), dni: d.usuario.dni });
+          localStorage.setItem('usuario', JSON.stringify(updated));
+        }
+
+        toast('✅ Perfil actualizado correctamente');
+        setTimeout(function() { location.href = 'perfil.html'; }, 900);
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>
