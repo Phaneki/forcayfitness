@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mis Matrículas — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a:hover{color:#0d2d5e;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1120px;margin:0 auto;padding:26px 28px;}
+    .breadcrumb{font-size:12px;color:#9ca3af;margin-bottom:10px;}
+    .breadcrumb span{color:#0d2d5e;font-weight:600;}
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px;}
+    .page-title{font-size:26px;font-weight:800;color:#0d2d5e;}
+    .page-sub{font-size:13px;color:#6b7280;margin-top:4px;}
+    .btn-primary{background:#0d2d5e;color:#fff;border:none;border-radius:8px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+    .btn-primary:hover{background:#0a2448;}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+    .stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;display:flex;justify-content:space-between;align-items:center;}
+    .stat .label{font-size:12px;color:#9ca3af;margin-bottom:4px;}
+    .stat .value{font-size:28px;font-weight:800;color:#0d2d5e;}
+    .stat-icon{font-size:22px;}
+    .table-wrap{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:20px;}
+    .table-header{padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+    .table-header h3{font-size:15px;font-weight:700;color:#111;}
+    .table-header p{font-size:12px;color:#9ca3af;}
+    .filter-tabs{display:flex;gap:6px;}
+    .tab{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;}
+    .tab.active{background:#0d2d5e;color:#fff;border-color:#0d2d5e;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:11px 16px;font-size:11px;font-weight:700;color:#9ca3af;text-align:left;border-bottom:1px solid #e5e7eb;background:#f9fafb;}
+    tbody tr{border-bottom:1px solid #f3f4f6;}
+    tbody tr:hover{background:#f8fafc;}
+    td{padding:13px 16px;font-size:13px;vertical-align:middle;}
+    .disc-name{font-weight:700;color:#111;}
+    .disc-tag{display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;margin-top:3px;}
+    .badge-active{background:#dcfce7;color:#15803d;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;}
+    .badge-warn{background:#fef9c3;color:#92400e;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;}
+    .badge-vencida{background:#fee2e2;color:#dc2626;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;}
+    .btn-sm{padding:6px 11px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#374151;}
+    .btn-sm:hover{border-color:#0d2d5e;color:#0d2d5e;}
+    .btn-renew{background:#0d2d5e;color:#fff;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;}
+    .bottom-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    .qr-flex{display:flex;gap:18px;align-items:center;}
+    .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:1000;}
+    .modal-bg.open{display:flex;}
+    .modal{background:#fff;border-radius:14px;padding:24px;width:440px;max-width:94vw;box-shadow:0 20px 50px rgba(0,0,0,.25);}
+    .modal h3{font-size:17px;font-weight:800;color:#0d2d5e;margin-bottom:6px;}
+    .modal p{font-size:12px;color:#6b7280;margin-bottom:14px;}
+    .fgroup{margin-bottom:12px;}
+    .fgroup label{display:block;font-size:11px;font-weight:700;color:#374151;margin-bottom:4px;}
+    .fgroup input,.fgroup select,.fgroup textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:13px 18px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    .hidden{display:none!important;}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>PORTAL DE ALUMNOS</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar" onclick="location.href='perfil.html'">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="breadcrumb">PORTAL AUTOSERVICIO (APU1) › <span>Mis Matrículas y Reservas</span></div>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Mis Matrículas y Cupos</h1>
+        <p class="page-sub">Consulta tu vigencia multisede (Surco, La Molina, San Borja), reservas en tatami y pase QR.</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm" onclick="location.href='disciplinas.html'">🥋 Reservar turno en tatami</button>
+        <button class="btn-primary" onclick="location.href='renovar.html'">+ Plan / Combo AFF</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div><div class="label">Matrículas Activas</div><div class="value" id="statActivas">—</div></div><div class="stat-icon">🥋</div></div>
+      <div class="stat"><div><div class="label">Reservas Confirmadas</div><div class="value" id="statReservas">—</div></div><div class="stat-icon">📅</div></div>
+      <div class="stat"><div><div class="label">Grado Actual</div><div class="value" style="font-size:18px;" id="statGrado">—</div></div><div class="stat-icon">🏅</div></div>
+    </div>
+
+    <!-- MATRÍCULAS -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div>
+          <h3>Mis Planes y Membresías</h3>
+          <p>Incluye estado de entrega de indumentaria Combo AFF y días vigentes</p>
+        </div>
+        <div class="filter-tabs">
+          <button class="tab active" onclick="filtrar('todas',this)">Todas</button>
+          <button class="tab" onclick="filtrar('activa',this)">Activas</button>
+          <button class="tab" onclick="filtrar('vencida',this)">Vencidas</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>PLAN / DISCIPLINA</th><th>SEDE</th><th>VIGENCIA</th><th>ESTADO / COMBO</th><th>ACCIÓN</th></tr>
+        </thead>
+        <tbody id="tablaBody">
+          <tr><td colspan="5" style="text-align:center;padding:24px;color:#9ca3af;">Cargando matrículas…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RESERVAS DE TATAMI -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div>
+          <h3>Mis Reservas de Tatami (Máx. 18 cupos/sala)</h3>
+          <p>Puedes cancelar tu turno para liberar el cupo a compañeros en lista de espera</p>
+        </div>
+        <button class="btn-sm" onclick="location.href='disciplinas.html'">+ Reservar otra clase</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>CLASE</th><th>SEDE / ESPACIO</th><th>FECHA Y HORA</th><th>ESTADO</th><th>ACCIÓN</th></tr>
+        </thead>
+        <tbody id="reservasBody">
+          <tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;">Cargando reservas…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BOTTOM CARDS: PASE QR + CONGELAMIENTO -->
+    <div class="bottom-cards">
+      <div class="card">
+        <div class="qr-flex">
+          <div id="qrCanvas"></div>
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#0d2d5e;margin-bottom:4px;">Pase de Acceso QR en Tatami</div>
+            <div style="font-size:12px;color:#6b7280;line-height:1.5;margin-bottom:8px;">Muestra este código al instructor o en recepción para validar tu aforo y asistencia.</div>
+            <div style="font-family:monospace;font-size:11px;background:#f1f5f9;padding:4px 8px;border-radius:6px;width:fit-content;" id="qrTokenLbl">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:800;color:#0d2d5e;margin-bottom:6px;">⏸ Solicitud Formal de Congelamiento</div>
+        <div style="font-size:12px;color:#6b7280;line-height:1.5;margin-bottom:12px;">Si vas a viajar o tienes descanso médico, congela tu membresía sin perder días pagados.</div>
+        <button class="btn-primary" onclick="abrirModalCongelamiento()">Solicitar congelamiento</button>
+        <div id="congEstado" style="margin-top:10px;font-size:11.5px;color:#475569;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL CONGELAMIENTO -->
+  <div class="modal-bg" id="modalCong">
+    <div class="modal">
+      <h3>Solicitar Congelamiento Formal</h3>
+      <p>Tu solicitud será revisada y extenderá la fecha de vencimiento de tu matrícula activa.</p>
+      <div class="fgroup">
+        <label>Motivo</label>
+        <select id="congMotivo">
+          <option value="Salud">Motivo médico / Lesión</option>
+          <option value="Viaje">Viaje de trabajo o vacaciones</option>
+          <option value="Laboral">Horario laboral temporal</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label>Días solicitados (5 a 60 días)</label>
+        <input type="number" id="congDias" value="15" min="5" max="60"/>
+      </div>
+      <div class="fgroup">
+        <label>Detalle / Sustento</label>
+        <textarea id="congDetalle" rows="2" placeholder="Describe brevemente el motivo..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn-sm" onclick="cerrarModalCong()">Cancelar</button>
+        <button class="btn-primary" onclick="enviarCongelamiento()">Enviar solicitud</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>FORCA &amp; FITNESS S.A.C. · Surco · La Molina · San Borja · Versión 2.5.0</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script>
+    requireRol(['Alumno']);
+    initNav();
+
+    var usuario = _getUsuario();
+    var headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' };
+    var matriculasList = [];
+
+    document.getElementById('statGrado').textContent = usuario.grado_actual || 'Principiante';
+    var qrToken = usuario.qr_token || ('QR-ALU-' + String(usuario.id || 1).padStart(4, '0'));
+    document.getElementById('qrCanvas').innerHTML = renderQrSvg(qrToken, 112);
+    document.getElementById('qrTokenLbl').textContent = qrToken;
+
+    function formatFecha(f) {
+      if (!f) return '—';
+      return new Date(f).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
+    }
+
+    function diasRestantes(fechaFin) {
+      if (!fechaFin) return -1;
+      var hoy = new Date(); hoy.setHours(0,0,0,0);
+      var fin = new Date(fechaFin); fin.setHours(0,0,0,0);
+      return Math.ceil((fin - hoy) / (1000 * 60 * 60 * 24));
+    }
+
+    async function cargarTodo() {
+      try {
+        var [resMat, resRes, resCong] = await Promise.all([
+          fetch(API_BASE + '/api/matriculas', { headers: headers }),
+          fetch(API_BASE + '/api/reservas/mias', { headers: headers }),
+          fetch(API_BASE + '/api/congelamientos', { headers: headers })
+        ]);
+        matriculasList = await resMat.json();
+        var reservas = await resRes.json();
+        var congs = await resCong.json();
+
+        renderMatriculas(matriculasList);
+        renderReservas(reservas);
+
+        if (Array.isArray(congs) && congs.length) {
+          var ult = congs[0];
+          document.getElementById('congEstado').innerHTML = 'Última solicitud: <strong>' + ult.motivo + '</strong> (' + ult.dias_solicitados + ' días) — Estado: <strong>' + ult.estado.toUpperCase() + '</strong>';
+        }
+      } catch (e) {
+        document.getElementById('tablaBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:20px;">Error cargando datos.</td></tr>';
+      }
+    }
+
+    function renderMatriculas(lista) {
+      var tbody = document.getElementById('tablaBody');
+      if (!Array.isArray(lista) || !lista.length) {
+        document.getElementById('statActivas').textContent = '0';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#9ca3af;">No tienes matrículas aún. ¡Contrata un plan o Combo AFF!</td></tr>';
+        return;
+      }
+      var activas = 0;
+      tbody.innerHTML = lista.map(function(m) {
+        var dias = diasRestantes(m.fecha_fin);
+        var est = (m.estado === 'activa' && dias >= 0) ? 'activa' : 'vencida';
+        if (est === 'activa') activas++;
+        var badge = est === 'activa'
+          ? (dias <= 7 ? '<span class="badge-warn">● Por vencer (' + dias + 'd)</span>' : '<span class="badge-active">● Activa (' + dias + 'd)</span>')
+          : '<span class="badge-vencida">● Vencida</span>';
+        var comboInfo = m.es_combo_aff
+          ? '<div style="font-size:11px;margin-top:4px;color:#1d4ed8;">🎒 Combo AFF (' + (m.talla_combo || 'Talla pendiente') + ') · ' + (m.combo_despachado ? 'Entregado' : 'Por recoger en sede') + '</div>'
+          : '';
+        return '<tr data-estado="' + est + '">' +
+          '<td><div class="disc-name">' + (m.plan_nombre || 'Plan Regular') + '</div><span class="disc-tag">' + m.disciplina + '</span>' + comboInfo + '</td>' +
+          '<td>' + (m.sede_nombre || 'Sede Surco') + '</td>' +
+          '<td><div>' + formatFecha(m.fecha_inicio) + ' → <strong>' + formatFecha(m.fecha_fin) + '</strong></div></td>' +
+          '<td>' + badge + '</td>' +
+          '<td><button class="btn-renew" onclick="location.href=\'renovar.html\'">↻ Renovar</button> <button class="btn-sm" onclick="location.href=\'comprobante.html\'">📄 Comprobante</button></td>' +
+          '</tr>';
+      }).join('');
+      document.getElementById('statActivas').textContent = activas;
+    }
+
+    function renderReservas(lista) {
+      var tbody = document.getElementById('reservasBody');
+      var activas = (Array.isArray(lista) ? lista : []).filter(function(r) { return r.estado !== 'cancelada'; });
+      document.getElementById('statReservas').textContent = activas.length;
+      if (!activas.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;">No tienes reservas de tatami activas.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = activas.map(function(r) {
+        var badge = r.estado === 'confirmada'
+          ? '<span class="badge-active">✓ Confirmada</span>'
+          : r.estado === 'asistio'
+          ? '<span class="badge-active">🏅 Asistió</span>'
+          : '<span class="badge-warn">⏳ Lista de espera</span>';
+        var btn = r.estado === 'confirmada' || r.estado === 'lista_espera'
+          ? '<button class="btn-sm" style="color:#dc2626;border-color:#fca5a5;" onclick="cancelarReserva(' + r.id + ')">Cancelar cupo</button>'
+          : '—';
+        return '<tr>' +
+          '<td><strong>' + r.titulo + '</strong><div style="font-size:11px;color:#6b7280;">' + r.disciplina + ' · ' + (r.profesor_nombre || '') + '</div></td>' +
+          '<td>' + r.sede_nombre + '<div style="font-size:11px;color:#6b7280;">' + r.espacio + '</div></td>' +
+          '<td>' + formatFecha(r.fecha_clase) + '<div style="font-size:11px;color:#6b7280;">' + r.hora_inicio + ' - ' + r.hora_fin + '</div></td>' +
+          '<td>' + badge + '</td>' +
+          '<td>' + btn + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    async function cancelarReserva(id) {
+      if (!confirm('¿Liberar este cupo en tatami?')) return;
+      var res = await fetch(API_BASE + '/api/reservas/' + id + '/cancelar', { method: 'POST', headers: headers });
+      var data = await res.json();
+      toast(data.message || 'Reserva cancelada');
+      cargarTodo();
+    }
+
+    function filtrar(estado, btn) {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('#tablaBody tr').forEach(function(tr) {
+        if (estado === 'todas' || tr.dataset.estado === estado) tr.classList.remove('hidden');
+        else tr.classList.add('hidden');
+      });
+    }
+
+    function abrirModalCongelamiento() { document.getElementById('modalCong').classList.add('open'); }
+    function cerrarModalCong() { document.getElementById('modalCong').classList.remove('open'); }
+
+    async function enviarCongelamiento() {
+      var motivo = document.getElementById('congMotivo').value;
+      var dias_solicitados = Number(document.getElementById('congDias').value);
+      var detalle = document.getElementById('congDetalle').value.trim();
+      var activa = matriculasList.find(function(m) { return m.estado === 'activa'; });
+      var res = await fetch(API_BASE + '/api/congelamientos', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ matricula_id: activa ? activa.id : null, motivo, dias_solicitados, detalle })
+      });
+      var data = await res.json();
+      if (!res.ok) return toast('❌ ' + (data.error || 'No se pudo enviar'));
+      cerrarModalCong();
+      toast('✅ Solicitud de congelamiento enviada a administración');
+      cargarTodo();
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargarTodo();
+  </script>
+</body>
+</html>
+

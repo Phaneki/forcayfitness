@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comprobante Electrónico SUNAT — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:940px;margin:0 auto;padding:26px 28px;}
+    .stepper{display:flex;align-items:center;gap:10px;margin-bottom:22px;font-size:12px;font-weight:700;color:#6b7280;flex-wrap:wrap;}
+    .step-done{color:#16a34a;display:flex;align-items:center;gap:6px;}
+    .step-active{color:#0d2d5e;background:#eff6ff;border:1px solid #bfdbfe;padding:6px 12px;border-radius:20px;}
+    .receipt{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(13,45,94,.06);margin-bottom:24px;}
+    .rec-header{background:linear-gradient(135deg,#0d2d5e,#1a468c);color:#fff;padding:24px 28px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+    .rec-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#16a34a;color:#fff;margin-bottom:8px;}
+    .rec-badge.pendiente{background:#d97706;}
+    .rec-body{padding:24px 28px;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+    .info-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:14px;}
+    .info-box h4{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;margin-bottom:8px;}
+    .info-row{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;gap:10px;}
+    .qr-fiscal{display:flex;align-items:center;gap:16px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:14px;margin-top:16px;}
+    .hash-code{font-family:monospace;font-size:11px;color:#374151;word-break:break-all;background:#fff;padding:6px 8px;border-radius:6px;border:1px solid #e5e7eb;margin-top:6px;}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+    .btn{padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .btn-primary{background:#0d2d5e;color:#fff;}
+    .btn-outline{background:#fff;color:#0d2d5e;border:1.5px solid #cbd5e1;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+    th{text-align:left;padding:9px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    @media print { nav,.stepper,.actions,.hist-card,footer,.toast{display:none!important;} body{background:#fff;} .receipt{box-shadow:none;border:none;} }
+    @media (max-width:700px){.grid2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>FACTURACIÓN SUNAT UBL 2.1</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar" onclick="location.href='perfil.html'">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="stepper">
+      <span class="step-done">✓ 1. Selección de Plan</span>
+      <span>→</span>
+      <span class="step-done">✓ 2. Pago y Conciliación</span>
+      <span>→</span>
+      <span class="step-active">3. Comprobante Electrónico SUNAT</span>
+    </div>
+
+    <div class="receipt" id="receiptCard">
+      <div class="rec-header">
+        <div>
+          <span class="rec-badge" id="badgeEstado">ACEPTADO_CDR SUNAT</span>
+          <h2 style="font-size:20px;font-weight:800;" id="recTitulo">Boleta de Venta Electrónica</h2>
+          <p style="font-size:12.5px;opacity:.85;margin-top:4px;">Forca &amp; Fitness S.A.C. · RUC 20601234567 · Lima, Perú</p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;opacity:.8;">SERIE Y CORRELATIVO</div>
+          <div style="font-size:22px;font-weight:800;letter-spacing:.5px;" id="recSerie">—</div>
+          <div style="font-size:11px;opacity:.8;margin-top:4px;" id="recFecha">—</div>
+        </div>
+      </div>
+
+      <div class="rec-body">
+        <div class="grid2">
+          <div class="info-box">
+            <h4>Datos del Cliente / Receptor</h4>
+            <div class="info-row"><span>Nombre / Razón Social:</span><strong id="recCliente">—</strong></div>
+            <div class="info-row"><span>DNI / RUC:</span><strong id="recDoc">—</strong></div>
+            <div class="info-row"><span>Sede de Atención:</span><strong id="recSede">—</strong></div>
+            <div class="info-row"><span>Medio de Pago:</span><strong id="recMetodo">—</strong></div>
+          </div>
+          <div class="info-box">
+            <h4>Detalle Tributario (IGV 18%)</h4>
+            <div class="info-row"><span>Concepto:</span><strong id="recConcepto">—</strong></div>
+            <div class="info-row"><span>Op. Gravada (Subtotal):</span><strong id="recSubtotal">S/ 0.00</strong></div>
+            <div class="info-row"><span>IGV (18%):</span><strong id="recIgv">S/ 0.00</strong></div>
+            <div class="info-row" style="font-size:15px;color:#0d2d5e;border-top:1px solid #e5e7eb;padding-top:6px;margin-top:4px;">
+              <span>Importe Total:</span><strong id="recTotal">S/ 0.00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="qr-fiscal" id="qrFiscalBox">
+          <div id="recQrSvg"></div>
+          <div style="flex:1;">
+            <div style="font-size:12.5px;font-weight:700;color:#0d2d5e;">Representación Impresa — Estándar UBL 2.1 SUNAT</div>
+            <div style="font-size:11.5px;color:#6b7280;margin-top:2px;" id="recCdrMsg">La Constancia de Recepción (CDR) ha sido validada automáticamente por CMM1 Tesorería.</div>
+            <div class="hash-code">DigestValue SHA-256: <span id="recHash">—</span></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+          <button class="btn btn-outline" id="btnXml" onclick="descargarXmlActual()">📄 Descargar XML UBL 2.1</button>
+          <a href="mis-matriculas.html" class="btn btn-outline">Ir a Mis Matrículas y QR →</a>
+          <a href="disciplinas.html" class="btn btn-outline">Reservar Clase en Tatami</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hist-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h3 style="font-size:15px;font-weight:700;color:#0d2d5e;">Mis Comprobantes Electrónicos Emitidos</h3>
+          <p style="font-size:12px;color:#6b7280;">Historial tributario SUNAT sincronizado desde CMM1 Tesorería.</p>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Serie - Correlativo</th>
+              <th>Tipo</th>
+              <th>Concepto</th>
+              <th>Subtotal</th>
+              <th>IGV</th>
+              <th>Total</th>
+              <th>Estado SUNAT</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyComprobantes">
+            <tr><td colspan="8" style="color:#9ca3af;text-align:center;padding:18px;">Cargando comprobantes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · Emisión Electrónica SUNAT UBL 2.1 (CMM1 Tesorería)</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Alumno', 'Director', 'Tesorero', 'Recepcionista']);
+    if (usuario) initNav('pagos.html');
+
+    var actualComprobanteId = null;
+    var ultimoPago = null;
+    try { ultimoPago = JSON.parse(localStorage.getItem('ultimoPago') || 'null'); } catch {}
+
+    function fmt(n) { return 'S/ ' + Number(n || 0).toFixed(2); }
+
+    function renderUltimo(comp) {
+      var data = ultimoPago || {};
+      var c = comp || data.comprobante || {};
+      actualComprobanteId = c.id || null;
+
+      var total = Number(c.total || data.monto || 0);
+      var sub = c.subtotal != null ? Number(c.subtotal) : +(total / 1.18).toFixed(2);
+      var igv = c.igv != null ? Number(c.igv) : +(total - sub).toFixed(2);
+      var esFactura = c.tipo === '01' || data.tipo_comprobante === 'Factura';
+
+      document.getElementById('recTitulo').textContent = esFactura ? 'Factura Electrónica' : 'Boleta de Venta Electrónica';
+      document.getElementById('recSerie').textContent = c.serie_numero || (data.estado === 'pendiente' ? 'PENDIENTE' : 'B001-000001');
+      document.getElementById('recFecha').textContent = 'Fecha: ' + new Date(c.created_at || data.fecha_pago || Date.now()).toLocaleString('es-PE');
+
+      var badge = document.getElementById('badgeEstado');
+      if (data.estado === 'pendiente' && !c.serie_numero) {
+        badge.textContent = 'PENDIENTE DE VALIDACIÓN';
+        badge.classList.add('pendiente');
+        document.getElementById('recCdrMsg').textContent = 'Tu pago presencial o por transferencia será validado por Tesorería para emitir el XML UBL 2.1.';
+      } else {
+        badge.textContent = (c.estado_sunat || 'ACEPTADO_CDR') + ' SUNAT';
+        badge.classList.remove('pendiente');
+        document.getElementById('recCdrMsg').textContent = c.cdr_mensaje || 'La Boleta/Factura electrónica ha sido aceptada por SUNAT CDR Código 0.';
+      }
+
+      document.getElementById('recCliente').textContent = c.razon_social_cliente || data.razon_social_cliente || c.cliente_nombre || data.alumno_nombre || usuario.nombre;
+      document.getElementById('recDoc').textContent = c.ruc_cliente || data.ruc_cliente || c.cliente_dni || data.dni || usuario.dni || '—';
+      document.getElementById('recSede').textContent = data.sede_nombre || usuario.sede || 'Sede Surco';
+      document.getElementById('recMetodo').textContent = String(c.medio_pago || data.medio_pago || 'yape').toUpperCase();
+      document.getElementById('recConcepto').textContent = c.concepto || data.concepto || 'Membresía Forca & Fitness';
+      document.getElementById('recSubtotal').textContent = fmt(sub);
+      document.getElementById('recIgv').textContent = fmt(igv);
+      document.getElementById('recTotal').textContent = fmt(total);
+      document.getElementById('recHash').textContent = c.hash_sunat || 'PENDIENTE-EMISION-CDR';
+
+      var qrStr = '20601234567|' + (esFactura ? '01' : '03') + '|' + (c.serie_numero || 'PEND') + '|' + igv.toFixed(2) + '|' + total.toFixed(2) + '|' + (c.hash_sunat || 'FORCA');
+      document.getElementById('recQrSvg').innerHTML = renderQrSvg(qrStr, 96);
+      document.getElementById('btnXml').style.display = actualComprobanteId ? 'inline-flex' : 'none';
+    }
+
+    async function cargarHistorial() {
+      try {
+        var res = await fetch(API_BASE + '/api/comprobantes', { headers: apiHeaders() });
+        var rows = await res.json();
+        if (!Array.isArray(rows) || !rows.length) {
+          document.getElementById('tbodyComprobantes').innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:18px;">Aún no tienes comprobantes electrónicos emitidos.</td></tr>';
+          if (ultimoPago) renderUltimo(null);
+          return;
+        }
+        if (!ultimoPago) {
+          renderUltimo(rows[0]);
+        } else {
+          renderUltimo(ultimoPago.comprobante || rows.find(function(x){ return x.pago_id === ultimoPago.id; }) || null);
+        }
+
+        document.getElementById('tbodyComprobantes').innerHTML = rows.map(function(c) {
+          return '<tr>' +
+            '<td><strong>' + c.serie_numero + '</strong></td>' +
+            '<td>' + (c.tipo === '01' ? 'Factura' : 'Boleta') + '</td>' +
+            '<td>' + (c.concepto || '—') + '</td>' +
+            '<td>' + fmt(c.subtotal) + '</td>' +
+            '<td>' + fmt(c.igv) + '</td>' +
+            '<td><strong>' + fmt(c.total) + '</strong></td>' +
+            '<td><span class="pill-ok">' + (c.estado_sunat || 'ACEPTADO_CDR') + '</span></td>' +
+            '<td style="display:flex;gap:6px;">' +
+              '<button class="btn btn-outline" style="padding:5px 9px;font-size:11px;" onclick=\'verComprobante(' + JSON.stringify(c) + ')\'>Ver</button>' +
+              '<button class="btn btn-primary" style="padding:5px 9px;font-size:11px;" onclick="descargarXml(' + c.id + ',\'' + c.serie_numero + '\')">XML</button>' +
+            '</td></tr>';
+        }).join('');
+      } catch (e) {
+        toast('Error cargando comprobantes: ' + e.message);
+      }
+    }
+
+    function verComprobante(c) {
+      ultimoPago = { comprobante: c, monto: c.total, estado: 'aprobado', medio_pago: c.medio_pago, concepto: c.concepto };
+      renderUltimo(c);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function descargarXmlActual() {
+      if (!actualComprobanteId) return toast('No hay XML disponible para este registro aún.');
+      await descargarXml(actualComprobanteId, document.getElementById('recSerie').textContent);
+    }
+
+    async function descargarXml(id, serie) {
+      try {
+        var res = await fetch(API_BASE + '/api/comprobantes/' + id + '/xml', { headers: apiHeaders() });
+        if (!res.ok) throw new Error('No se pudo descargar el XML UBL');
+        var blob = await res.blob();
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = (serie || ('comprobante-' + id)) + '.xml';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        toast('✅ XML UBL 2.1 descargado');
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargarHistorial();
+  </script>
+</body>
+</html>
+
