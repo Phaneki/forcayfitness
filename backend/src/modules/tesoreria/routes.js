@@ -1,10 +1,45 @@
 const express = require('express');
+const crypto = require('crypto');
 const { query, withTransaction } = require('../../db/pool');
 const { requireAuth, requireRole, normalizeRole } = require('../../middleware/auth');
 const { eventBus, TOPICOS } = require('../../events/eventBus');
 const { sha256, buildXmlUbl } = require('../../db/init');
 
 const router = express.Router();
+
+function extractItemsAndMeta(rawItemsPos) {
+  if (Array.isArray(rawItemsPos)) return { items: rawItemsPos, meta: {} };
+  if (rawItemsPos && typeof rawItemsPos === 'object') {
+    return {
+      items: Array.isArray(rawItemsPos.items) ? rawItemsPos.items : [],
+      meta: rawItemsPos.meta && typeof rawItemsPos.meta === 'object' ? rawItemsPos.meta : {},
+    };
+  }
+  return { items: [], meta: {} };
+}
+
+function verifyMercadoPagoSignature(req, secret) {
+  const xSignature = req.headers['x-signature'];
+  const xRequestId = req.headers['x-request-id'];
+  const dataId = req.query?.['data.id'] || req.body?.data?.id;
+  if (!xSignature || !xRequestId || !dataId) return false;
+
+  const parts = String(xSignature).split(',');
+  const tsPart = parts.find((p) => p.trim().startsWith('ts='));
+  const v1Part = parts.find((p) => p.trim().startsWith('v1='));
+  if (!tsPart || !v1Part) return false;
+
+  const ts = tsPart.split('=')[1]?.trim();
+  const v1 = v1Part.split('=')[1]?.trim();
+  if (!ts || !v1 || !/^[a-f0-9]+$/i.test(v1)) return false;
+
+  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+  const computed = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
+  const bufA = Buffer.from(computed, 'hex');
+  const bufB = Buffer.from(v1, 'hex');
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 async function emitirComprobanteYActivarMatricula(client, pagoRow, extra = {}) {
   // 1. Generar comprobante UBL 2.1 oficial (Boleta 03 / Factura 01)
@@ -207,8 +242,20 @@ router.post('/pagos', requireAuth, async (req, res) => {
 
     const metodoNorm = String(medio_pago).toLowerCase();
     const esDigitalAuto = ['yape', 'plin', 'tarjeta', 'mercado_pago', 'culqi'].includes(metodoNorm);
-    const estadoInicial = esDigitalAuto || aprobado_en_pos ? 'aprobado' : 'pendiente';
-    const webhookRef = esDigitalAuto ? `WHK-${metodoNorm.toUpperCase()}-${Date.now().toString().slice(-6)}` : null;
+    const mpToken = process.env.MP_ACCESS_TOKEN || '';
+    const useMercadoPago = Boolean(mpToken) && esDigitalAuto && !aprobado_en_pos;
+    const estadoInicial = useMercadoPago ? 'pendiente' : esDigitalAuto || aprobado_en_pos ? 'aprobado' : 'pendiente';
+    const conciliadoAuto = !useMercadoPago && esDigitalAuto;
+    const webhookRef = conciliadoAuto ? `WHK-${metodoNorm.toUpperCase()}-${Date.now().toString().slice(-6)}` : null;
+
+    const storedItemsPayload = useMercadoPago
+      ? {
+          items: Array.isArray(items_pos) ? items_pos : [],
+          meta: { plan_codigo, duracion_meses, disciplina, es_combo_aff, talla_combo, sede_id },
+        }
+      : Array.isArray(items_pos)
+      ? items_pos
+      : [];
 
     const result = await withTransaction(async (client) => {
       const ins = await client.query(
@@ -229,10 +276,10 @@ router.post('/pagos', requireAuth, async (req, res) => {
           ruc_cliente,
           razon_social_cliente,
           estadoInicial,
-          esDigitalAuto,
+          conciliadoAuto,
           webhookRef,
           idemKey,
-          JSON.stringify(items_pos || []),
+          JSON.stringify(storedItemsPayload),
         ]
       );
       const pagoRow = ins.rows[0];
@@ -252,6 +299,65 @@ router.post('/pagos', requireAuth, async (req, res) => {
 
       return { pago: pagoRow, emitted };
     });
+
+    if (useMercadoPago) {
+      const host = req.get ? req.get('host') : '';
+      const rawBase = process.env.APP_BASE_URL || (host ? `${req.protocol || 'https'}://${host}` : 'http://localhost:3000');
+      const baseUrl = rawBase.replace(/\/$/, '');
+
+      const prefPayload = {
+        items: [
+          {
+            title: concepto,
+            quantity: 1,
+            currency_id: 'PEN',
+            unit_price: Number(result.pago.monto),
+          },
+        ],
+        external_reference: String(result.pago.id),
+        notification_url: `${baseUrl}/api/pagos/webhook?source_news=webhooks`,
+        back_urls: {
+          success: `${baseUrl}/pages/portal/comprobante.html`,
+          pending: `${baseUrl}/pages/portal/comprobante.html`,
+          failure: `${baseUrl}/pages/portal/pagos.html?mp_status=failure`,
+        },
+        auto_return: 'approved',
+        metadata: {
+          pago_id: result.pago.id,
+          plan_codigo: plan_codigo || null,
+          disciplina: disciplina || null,
+        },
+      };
+
+      const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${mpToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prefPayload),
+      });
+      const mpData = await mpRes.json();
+      if (!mpRes.ok) {
+        console.error('[Mercado Pago Preference Error]', mpData);
+        return res.status(502).json({
+          error: mpData.message || 'No se pudo generar la preferencia de pago en Mercado Pago.',
+        });
+      }
+
+      await query('UPDATE pagos SET webhook_referencia = $1 WHERE id = $2', [mpData.id || null, result.pago.id]);
+      const checkoutUrl = mpToken.startsWith('TEST-')
+        ? mpData.sandbox_init_point || mpData.init_point
+        : mpData.init_point || mpData.sandbox_init_point;
+
+      return res.status(201).json({
+        ...result.pago,
+        comprobante: null,
+        matricula_id: result.pago.matricula_id,
+        checkout_url: checkoutUrl,
+        mp_preference_id: mpData.id || null,
+      });
+    }
 
     if (estadoInicial === 'aprobado') {
       await eventBus.publish(
@@ -299,29 +405,90 @@ router.post('/pagos', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/pagos/webhook — Webhook de Pasarela (Culqi / Mercado Pago / Yape QR)
+// POST /api/pagos/webhook — Webhook de Pasarela (Mercado Pago HMAC + Culqi / Yape QR)
 router.post('/pagos/webhook', async (req, res) => {
   try {
-    const { pago_id, referencia_externa, estado = 'approved' } = req.body || {};
-    if (!pago_id) return res.status(400).json({ error: 'pago_id requerido en payload webhook.' });
-    if (estado !== 'approved') return res.json({ ok: true, ignored: true });
+    const mpToken = process.env.MP_ACCESS_TOKEN || '';
+    const mpSecret = process.env.MP_WEBHOOK_SECRET || process.env.WEBHOOK_SECRET || '';
+    const isMercadoPagoEvent =
+      req.body?.type === 'payment' ||
+      req.query?.type === 'payment' ||
+      (Boolean(req.body?.data?.id || req.query?.['data.id']) && !req.body?.pago_id);
+
+    let pagoId = req.body?.pago_id ? Number(req.body.pago_id) : null;
+    let referenciaExterna = req.body?.referencia_externa || null;
+    let estadoPago = req.body?.estado || 'approved';
+
+    if (isMercadoPagoEvent) {
+      if (mpSecret && !verifyMercadoPagoSignature(req, mpSecret)) {
+        return res.status(401).json({ error: 'Firma x-signature de Mercado Pago inválida.' });
+      }
+
+      const paymentId = req.query?.['data.id'] || req.body?.data?.id;
+      if (!paymentId) return res.status(200).json({ ok: true, ignored: true });
+
+      if (!mpToken) {
+        return res.status(503).json({ error: 'MP_ACCESS_TOKEN no configurado en el servidor.' });
+      }
+
+      const mpPayRes = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, {
+        headers: { Authorization: `Bearer ${mpToken}` },
+      });
+      if (!mpPayRes.ok) {
+        return res.status(502).json({ error: 'Error consultando pago en Mercado Pago.' });
+      }
+      const mpPay = await mpPayRes.json();
+      estadoPago = mpPay.status;
+      if (estadoPago !== 'approved') {
+        return res.status(200).json({ ok: true, ignored: true, mp_status: estadoPago });
+      }
+      pagoId = Number(mpPay.external_reference || mpPay.metadata?.pago_id);
+      referenciaExterna = `MP-${paymentId}`;
+    }
+
+    if (!pagoId) return res.status(400).json({ error: 'pago_id / external_reference requerido en webhook.' });
+    if (estadoPago !== 'approved') return res.json({ ok: true, ignored: true });
 
     const out = await withTransaction(async (client) => {
-      const pRes = await client.query('SELECT * FROM pagos WHERE id = $1 FOR UPDATE', [Number(pago_id)]);
+      const pRes = await client.query('SELECT * FROM pagos WHERE id = $1 FOR UPDATE', [pagoId]);
       if (!pRes.rows.length) return null;
+      const existing = pRes.rows[0];
+      if (existing.estado === 'aprobado') {
+        const compRes = await client.query('SELECT * FROM comprobantes_ubl WHERE pago_id = $1', [existing.id]);
+        return { pago: existing, emitted: { comprobante: compRes.rows[0] || null, matricula_id: existing.matricula_id }, idempotent: true };
+      }
+
       const upd = await client.query(
         `UPDATE pagos SET estado = 'aprobado', conciliacion_automatica = true,
          webhook_referencia = COALESCE($1, webhook_referencia) WHERE id = $2 RETURNING *`,
-        [referencia_externa || `WHK-${Date.now()}`, Number(pago_id)]
+        [referenciaExterna || `WHK-${Date.now()}`, pagoId]
       );
-      const emitted = await emitirComprobanteYActivarMatricula(client, upd.rows[0], {});
-      return { pago: upd.rows[0], emitted };
+      const { items, meta } = extractItemsAndMeta(upd.rows[0].items_pos);
+      const emitted = await emitirComprobanteYActivarMatricula(client, upd.rows[0], { ...meta, items_pos: items });
+      return { pago: upd.rows[0], emitted, idempotent: false };
     });
 
     if (!out) return res.status(404).json({ error: 'Pago no encontrado.' });
-    await eventBus.publish(TOPICOS.PAGOS_CONCILIADOS, { pago_id, via: 'webhook' }, 'CMM1-Tesoreria');
-    return res.json({ ok: true, pago: out.pago, comprobante: out.emitted.comprobante });
+    if (!out.idempotent) {
+      await eventBus.publish(TOPICOS.PAGOS_CONCILIADOS, { pago_id: pagoId, via: 'webhook' }, 'CMM1-Tesoreria');
+      if (out.emitted?.comprobante) {
+        await eventBus.publish(
+          TOPICOS.COMPROBANTES_EMITIDOS,
+          { serie_numero: out.emitted.comprobante.serie_numero, hash_sunat: out.emitted.comprobante.hash_sunat },
+          'CMM1-Tesoreria'
+        );
+      }
+      if (out.emitted?.matricula_id) {
+        await eventBus.publish(
+          TOPICOS.MATRICULAS_CONFIRMADAS,
+          { matricula_id: out.emitted.matricula_id, usuario_id: out.pago.usuario_id },
+          'APP2-Matriculas'
+        );
+      }
+    }
+    return res.status(200).json({ ok: true, idempotent: Boolean(out.idempotent), pago: out.pago, comprobante: out.emitted.comprobante });
   } catch (err) {
+    console.error('[Webhook Pagos Error]', err);
     return res.status(500).json({ error: 'Error procesando webhook.' });
   }
 });

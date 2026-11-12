@@ -115,5 +115,6 @@ El proyecto está listo para desplegarse como **monolito modular unificado** (AP
    - `DATABASE_URL` = *(pegar la Internal/External Database URL de Render PostgreSQL)*
    - `JWT_SECRET` = *(cadena aleatoria segura de 32+ caracteres)*
    - *(Opcional)* `DATABASE_SSL` = `true` (el archivo `backend/src/db/pool.js` detecta SSL automáticamente para `*.render.com` y cuenta con reintento automático si la conexión interna no requiere SSL).
+   - *(Opcional)* `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` y `APP_BASE_URL` si deseas activar **Mercado Pago Checkout Pro** en lugar del sandbox local.
    - *(Opcional)* `OPENAI_API_KEY` o `GEMINI_API_KEY` si deseas enriquecer el Agente IA fuera del motor local RAG + MCP.
 4. Una vez desplegado, entra a tu URL de Render (por ejemplo `https://forca-fitness-app.onrender.com`) y verifica `/api/health`.
