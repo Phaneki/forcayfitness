@@ -1,0 +1,10 @@
+{
+  "name": "Forca & Fitness — Plataforma & Staff PWA",
+  "short_name": "Forca & Fitness",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d2d5e",
+  "theme_color": "#0d2d5e",
+  "description": "Plataforma centralizada de matrículas, control atómico de aforos (18/tatami), POS, tesorería SUNAT y WebApp Staff PWA."
+}
+
