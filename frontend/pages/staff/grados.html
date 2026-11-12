@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="../../manifest.json"/>
+  <title>Evaluación y Grados Marciales — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 12px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1060px;margin:0 auto;padding:26px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:20px;}
+    .cols{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:14px;}
+    .fgroup{margin-bottom:12px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;color:#374151;margin-bottom:4px;}
+    .fgroup select,.fgroup input,.fgroup textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;}
+    .btn{width:100%;background:#0d2d5e;color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    .badge{display:inline-block;padding:4px 10px;border-radius:16px;font-size:11px;font-weight:700;background:#eff6ff;color:#1e40af;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:24px;}
+    @media (max-width:850px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>PROGRESIÓN DE GRADOS MARCIALES</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Evaluación Técnica y Ascenso de Grados</h1>
+    <p class="page-sub">Registra graduaciones de BJJ, Muay Thai, Boxeo y Kick Boxing sincronizadas al Customer 360 del alumno.</p>
+
+    <div class="cols">
+      <form class="card" onsubmit="registrarAscenso(event)">
+        <div class="card-title">🥋 Registrar Nuevo Grado / Cinta</div>
+        <div class="fgroup">
+          <label>Alumno</label>
+          <select id="selAlumno" onchange="cargarHistorialAlumno()"></select>
+        </div>
+        <div class="fgroup">
+          <label>Disciplina</label>
+          <select id="selDisc">
+            <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu (BJJ)</option>
+            <option value="Muay Thai">Muay Thai</option>
+            <option value="Boxeo">Boxeo</option>
+            <option value="Capoeira">Capoeira</option>
+            <option value="Acondicionamiento">Acondicionamiento</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label>Grado / Nivel Otorgado</label>
+          <select id="selGrado">
+            <option>Cinturón Blanco (1er Grau)</option>
+            <option>Cinturón Blanco (2do Grau)</option>
+            <option>Cinturón Azul</option>
+            <option>Cinturón Azul (1er Grau)</option>
+            <option>Cinturón Morado</option>
+            <option>Cinturón Marrón</option>
+            <option>Cinturón Negro</option>
+            <option>Prajied Blanco y Rojo</option>
+            <option>Prajied Azul</option>
+            <option>Nivel Intermedio Competitivo</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label>Observaciones Técnicas del Examen</label>
+          <textarea id="txtObs" rows="3" placeholder="Ej: Buen dominio de guardia cerrada, raspados y defensa de triangulo..."></textarea>
+        </div>
+        <button type="submit" class="btn">Certificar Ascenso de Grado →</button>
+      </form>
+
+      <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>📜 Historial Marcial del Alumno</span>
+          <span class="badge" id="gradoActualBadge">—</span>
+        </div>
+        <table>
+          <thead><tr><th>Disciplina</th><th>Grado</th><th>Instructor</th><th>Fecha</th><th>Observación</th></tr></thead>
+          <tbody id="tbodyGrados"><tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:16px;">Selecciona un alumno...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APU2 Evaluación de Grados</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js').catch(function(){});
+    var usuario = requireRol(['Profesor', 'Director']);
+    if (usuario) initNav('grados.html');
+
+    var alumnos = [];
+
+    async function cargarAlumnos() {
+      try {
+        var res = await fetch(API_BASE + '/api/alumnos', { headers: apiHeaders() });
+        alumnos = await res.json();
+        var sel = document.getElementById('selAlumno');
+        sel.innerHTML = alumnos.map(function(a) {
+          return '<option value="' + a.id + '">' + a.nombre + ' ' + (a.apellido_paterno || '') + ' (' + (a.disciplina || 'BJJ') + ')</option>';
+        }).join('');
+        cargarHistorialAlumno();
+      } catch (e) {
+        toast('Error cargando alumnos');
+      }
+    }
+
+    async function cargarHistorialAlumno() {
+      var id = Number(document.getElementById('selAlumno').value);
+      var al = alumnos.find(function(x){ return x.id === id; });
+      if (al) {
+        document.getElementById('gradoActualBadge').textContent = 'Actual: ' + (al.grado_actual || 'Sin grado');
+        if (al.disciplina) document.getElementById('selDisc').value = al.disciplina;
+      }
+      if (!id) return;
+      try {
+        var res = await fetch(API_BASE + '/api/grados/' + id, { headers: apiHeaders() });
+        var rows = await res.json();
+        document.getElementById('tbodyGrados').innerHTML = rows.length
+          ? rows.map(function(g) {
+              return '<tr><td><strong>' + g.disciplina + '</strong></td><td>' + g.grado + '</td><td>' + (g.instructor_nombre || 'Staff') + '</td><td>' + String(g.fecha_otorgamiento || '').slice(0, 10) + '</td><td>' + (g.observaciones || '—') + '</td></tr>';
+            }).join('')
+          : '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:16px;">Sin graduaciones previas registradas.</td></tr>';
+      } catch {}
+    }
+
+    async function registrarAscenso(ev) {
+      ev.preventDefault();
+      try {
+        var id = Number(document.getElementById('selAlumno').value);
+        var res = await fetch(API_BASE + '/api/grados', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({
+            usuario_id: id,
+            disciplina: document.getElementById('selDisc').value,
+            grado: document.getElementById('selGrado').value,
+            observaciones: document.getElementById('txtObs').value.trim()
+          })
+        });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error registrando grado');
+        document.getElementById('txtObs').value = '';
+        toast('✅ Ascenso de grado certificado correctamente');
+        await cargarAlumnos();
+        document.getElementById('selAlumno').value = id;
+        cargarHistorialAlumno();
+      } catch (e) {
+        toast('❌ ' + e.message);
+      }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargarAlumnos();
+  </script>
+</body>
+</html>
