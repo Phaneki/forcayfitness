@@ -1,0 +1,28 @@
+{
+  "name": "forcayfitness",
+  "version": "2.5.0",
+  "description": "Plataforma Centralizada de Matrículas, Control Atómico de Aforos, Tesorería SUNAT, Inventario AFF Gear, Seguridad DVR, BI/CRM y Agente IA MCP — Forca & Fitness",
+  "main": "backend/src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "node --watch backend/src/server.js",
+    "db:init": "node backend/src/db/runInit.js",
+    "test": "node --test backend/tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "pg-mem": "^3.0.5"
+  }
+}
+
