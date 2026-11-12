@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventario AFF Gear y Kárdex — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 11px;font-size:12.5px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:24px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .cols{display:grid;grid-template-columns:1.25fr 380px;gap:18px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;}
+    .fgroup{margin-bottom:10px;}
+    .fgroup label{display:block;font-size:11.5px;font-weight:700;margin-bottom:4px;}
+    .fgroup input,.fgroup select{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12.5px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 9px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:9px;border-bottom:1px solid #f3f4f6;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-low{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-pend{background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .btn{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:#0d2d5e;color:#fff;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:950px){.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>APP3 · INVENTARIO AFF GEAR &amp; TALLERES</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Inventario AFF Gear, Kárdex y Órdenes a Talleres</h1>
+    <p class="page-sub">Control de uniformes/equipos por talla en Surco, La Molina y San Borja, alertas de reorden y reposición textil.</p>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="card-title">📦 Stock por Sede y Alertas de Reorden</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>SKU / Producto</th><th>Talla</th><th>Sede</th><th>Disp.</th><th>Reorden</th><th>Estado</th></tr></thead>
+              <tbody id="tbodyStock"><tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:16px;">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🏭 Órdenes de Reposición a Talleres Textiles</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Orden</th><th>Producto</th><th>Sede</th><th>Taller Proveedor</th><th>Cant.</th><th>Estado</th><th>Acción</th></tr></thead>
+              <tbody id="tbodyOrdenes"><tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:14px;">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧾 Últimos Movimientos de Kárdex</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Producto</th><th>Sede</th><th>Tipo</th><th>Cant.</th><th>Referencia</th><th>Responsable</th></tr></thead>
+              <tbody id="tbodyKardex"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <form class="card" onsubmit="registrarKardex(event)">
+          <div class="card-title">🔄 Ajuste / Ingreso Manual Kárdex</div>
+          <div class="fgroup"><label>Producto</label><select id="kProd"></select></div>
+          <div class="fgroup"><label>Sede</label><select id="kSede"></select></div>
+          <div class="fgroup"><label>Tipo de Movimiento</label><select id="kTipo"><option value="ENTRADA_TALLER">ENTRADA_TALLER (+)</option><option value="AJUSTE_INVENTARIO">AJUSTE_INVENTARIO (+/-)</option></select></div>
+          <div class="fgroup"><label>Cantidad (negativo para merma/salida)</label><input type="number" id="kCant" value="10" required/></div>
+          <div class="fgroup"><label>Referencia / Guía</label><input type="text" id="kRef" placeholder="Guía Remisión GR-001"/></div>
+          <button type="submit" class="btn" style="width:100%;">Registrar en Kárdex →</button>
+        </form>
+
+        <form class="card" id="formOrden" onsubmit="crearOrden(event)">
+          <div class="card-title">🧵 Emitir Orden de Compra a Taller</div>
+          <div class="fgroup"><label>Producto</label><select id="oProd"></select></div>
+          <div class="fgroup"><label>Sede Destino</label><select id="oSede"></select></div>
+          <div class="fgroup"><label>Taller Textil Proveedor</label><input type="text" id="oTaller" value="Taller Textil Lima Combat S.A.C." required/></div>
+          <div class="fgroup"><label>Cantidad a Solicitar</label><input type="number" id="oCant" value="20" min="1" required/></div>
+          <button type="submit" class="btn" style="width:100%;">Emitir Orden de Reposición →</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APP3 Inventario AFF Gear</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Director', 'Tesorero', 'Recepcionista']);
+    if (usuario) initNav('inventario.html');
+
+    async function cargar() {
+      try {
+        var canOrden = ['Director', 'Tesorero'].includes(usuario.rol);
+        document.getElementById('formOrden').style.display = canOrden ? 'block' : 'none';
+
+        var reqs = [
+          fetch(API_BASE + '/api/sedes'),
+          fetch(API_BASE + '/api/inventario/stock', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/inventario/kardex', { headers: apiHeaders() })
+        ];
+        if (canOrden) reqs.push(fetch(API_BASE + '/api/inventario/ordenes', { headers: apiHeaders() }));
+
+        var res = await Promise.all(reqs);
+        var sedes = await res[0].json();
+        var stock = await res[1].json();
+        var kardex = await res[2].json();
+        var ordenes = canOrden ? await res[3].json() : [];
+
+        var sedeOpts = sedes.map(function(s){ return '<option value="' + s.id + '">' + s.nombre + '</option>'; }).join('');
+        document.getElementById('kSede').innerHTML = sedeOpts;
+        document.getElementById('oSede').innerHTML = sedeOpts;
+
+        var seenProd = {};
+        var prodList = [];
+        stock.forEach(function(s) {
+          if (!seenProd[s.producto_id]) { seenProd[s.producto_id] = true; prodList.push(s); }
+        });
+        var prodOpts = prodList.map(function(p){ return '<option value="' + p.producto_id + '">' + p.sku + ' — ' + p.nombre + ' (' + p.talla + ')</option>'; }).join('');
+        document.getElementById('kProd').innerHTML = prodOpts;
+        document.getElementById('oProd').innerHTML = prodOpts;
+
+        document.getElementById('tbodyStock').innerHTML = stock.map(function(s) {
+          return '<tr><td><strong>' + s.nombre + '</strong><div style="font-size:11px;color:#6b7280;">' + s.sku + '</div></td><td>' + s.talla + '</td><td>' + s.sede_nombre + '</td><td><strong>' + s.cantidad_disponible + '</strong></td><td>' + s.punto_reorden + '</td><td><span class="' + (s.alerta_reorden ? 'pill-low' : 'pill-ok') + '">' + (s.alerta_reorden ? '⚠️ REORDEN' : 'OK') + '</span></td></tr>';
+        }).join('');
+
+        document.getElementById('tbodyOrdenes').innerHTML = ordenes.length
+          ? ordenes.map(function(o) {
+              var pend = o.estado === 'pendiente';
+              return '<tr><td>#' + o.id + '</td><td><strong>' + o.producto_nombre + ' (' + o.talla + ')</strong></td><td>' + o.sede_nombre + '</td><td>' + o.taller_proveedor + '</td><td>' + o.cantidad_solicitada + '</td><td><span class="' + (pend ? 'pill-pend' : 'pill-ok') + '">' + o.estado.toUpperCase() + '</span></td><td>' + (pend ? '<button class="btn" style="padding:5px 9px;font-size:11px;" onclick="recibirOrden(' + o.id + ')">Recibir Ingreso</button>' : '✓ Recibida') + '</td></tr>';
+            }).join('')
+          : '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:14px;">Sin órdenes registradas.</td></tr>';
+
+        document.getElementById('tbodyKardex').innerHTML = kardex.slice(0, 20).map(function(k) {
+          return '<tr><td>' + k.producto_nombre + ' (' + k.talla + ')</td><td>' + k.sede_nombre + '</td><td><code>' + k.tipo + '</code></td><td><strong>' + (k.cantidad > 0 ? '+' + k.cantidad : k.cantidad) + '</strong></td><td>' + (k.referencia || '—') + '</td><td>' + k.responsable_nombre + '</td></tr>';
+        }).join('');
+      } catch (e) { toast('Error cargando inventario: ' + e.message); }
+    }
+
+    async function registrarKardex(ev) {
+      ev.preventDefault();
+      try {
+        var r = await fetch(API_BASE + '/api/inventario/kardex', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({
+            producto_id: Number(document.getElementById('kProd').value),
+            sede_id: Number(document.getElementById('kSede').value),
+            tipo: document.getElementById('kTipo').value,
+            cantidad: Number(document.getElementById('kCant').value),
+            referencia: document.getElementById('kRef').value.trim()
+          })
+        });
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Error en Kárdex');
+        toast('✅ Movimiento de Kárdex registrado');
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    async function crearOrden(ev) {
+      ev.preventDefault();
+      try {
+        var r = await fetch(API_BASE + '/api/inventario/ordenes', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({
+            producto_id: Number(document.getElementById('oProd').value),
+            sede_id: Number(document.getElementById('oSede').value),
+            taller_proveedor: document.getElementById('oTaller').value.trim(),
+            cantidad_solicitada: Number(document.getElementById('oCant').value)
+          })
+        });
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Error creando orden');
+        toast('✅ Orden de reposición emitida al taller');
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    async function recibirOrden(id) {
+      try {
+        var r = await fetch(API_BASE + '/api/inventario/ordenes/' + id + '/recibir', { method: 'PUT', headers: apiHeaders() });
+        if (!r.ok) throw new Error('Error recibiendo orden');
+        toast('✅ Mercadería recibida e ingresada al Kárdex');
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
+

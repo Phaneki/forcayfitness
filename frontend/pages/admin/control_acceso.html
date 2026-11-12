@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Control de Acceso y Torniquetes QR — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 11px;font-size:12.5px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:24px 28px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;margin-bottom:4px;}
+    .page-sub{font-size:13px;color:#6b7280;margin-bottom:18px;}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+    .kpi{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;}
+    .kpi-label{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;}
+    .kpi-val{font-size:22px;font-weight:800;color:#0d2d5e;margin-top:6px;}
+    .cols{display:grid;grid-template-columns:1.35fr 350px;gap:18px;align-items:start;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+    .tab{padding:6px 12px;border-radius:16px;border:1.5px solid #e5e7eb;background:#fff;font-size:12px;font-weight:700;cursor:pointer;}
+    .tab.active{background:#0d2d5e;color:#fff;border-color:#0d2d5e;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    tr:hover{background:#f8fafc;cursor:pointer;}
+    tr.row-sel{background:#eff6ff;}
+    .pill-ok{background:#dcfce7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .pill-bad{background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .btn{padding:9px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;width:100%;}
+    .btn-ok{background:#16a34a;color:#fff;}
+    .btn-bad{background:#dc2626;color:#fff;}
+    .toast{position:fixed;bottom:24px;left:24px;background:#0d2d5e;color:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:9999;}
+    .toast.show{opacity:1;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:950px){.cols,.kpis{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>CONTROL DE ACCESO Y TORNIQUETES</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Control de Acceso Físico y Torniquetes QR</h1>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:18px;">Habilitación o bloqueo en tiempo real de credenciales QR por mora, sanción o membresía vencida.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-label">Total Alumnos</div><div class="kpi-val" id="kTot">0</div></div>
+      <div class="kpi"><div class="kpi-label">Acceso Habilitado</div><div class="kpi-val" id="kHab">0</div></div>
+      <div class="kpi"><div class="kpi-label">Bloqueados Manualmente</div><div class="kpi-val" id="kBloq">0</div></div>
+      <div class="kpi"><div class="kpi-label">Ingresos QR Hoy</div><div class="kpi-val" id="kAsis">0</div></div>
+    </div>
+
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" id="t-todos" onclick="setTab('todos')">Todos</button>
+            <button class="tab" id="t-hab" onclick="setTab('hab')">Habilitados</button>
+            <button class="tab" id="t-bloq" onclick="setTab('bloq')">Bloqueados</button>
+            <button class="tab" id="t-venc" onclick="setTab('venc')">Membresía Vencida</button>
+            <input type="text" id="qSearch" placeholder="Buscar alumno o DNI..." oninput="renderTabla()" style="margin-left:auto;border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-size:12.5px;"/>
+          </div>
+          <table>
+            <thead><tr><th>Alumno</th><th>Sede</th><th>Membresía</th><th>Estado Acceso</th></tr></thead>
+            <tbody id="tbodyAcc"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🚪 Bitácora Reciente de Ingresos QR en Sedes</div>
+          <table>
+            <thead><tr><th>Alumno</th><th>Sede</th><th>Clase</th><th>Método</th><th>Validación</th><th>Hora</th></tr></thead>
+            <tbody id="tbodyLogs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="position:sticky;top:16px;" id="sidePanel">
+        <div class="card-title">🔑 Credencial Seleccionada</div>
+        <div style="color:#9ca3af;font-size:12.5px;text-align:center;padding:20px 0;">Selecciona un alumno para habilitar o bloquear su pase QR.</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · APP1 / APP2 Control de Acceso</footer>
+  <div class="toast" id="toast"></div>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Director', 'Recepcionista']);
+    if (usuario) initNav('control_acceso.html');
+
+    var alumnos = [], selectedId = null, tab = 'todos';
+
+    function setTab(t) {
+      tab = t;
+      ['todos','hab','bloq','venc'].forEach(function(k){ document.getElementById('t-' + k).classList.toggle('active', k === t); });
+      renderTabla();
+    }
+
+    async function cargar() {
+      try {
+        var [rAl, rAs] = await Promise.all([
+          fetch(API_BASE + '/api/alumnos', { headers: apiHeaders() }),
+          fetch(API_BASE + '/api/asistencias', { headers: apiHeaders() })
+        ]);
+        alumnos = await rAl.json();
+        var asist = await rAs.json();
+
+        document.getElementById('kTot').textContent = alumnos.length;
+        document.getElementById('kHab').textContent = alumnos.filter(function(a){ return a.acceso_habilitado !== false; }).length;
+        document.getElementById('kBloq').textContent = alumnos.filter(function(a){ return a.acceso_habilitado === false; }).length;
+        document.getElementById('kAsis').textContent = asist.length;
+
+        renderTabla();
+        if (alumnos.length) {
+          var sel = alumnos.find(function(x){ return x.id === selectedId; }) || alumnos[0];
+          seleccionar(sel.id);
+        }
+
+        document.getElementById('tbodyLogs').innerHTML = asist.slice(0, 15).map(function(a) {
+          var ok = a.estado_validacion === 'autorizado';
+          return '<tr><td><strong>' + a.alumno_nombre + '</strong></td><td>' + (a.sede_nombre || '—') + '</td><td>' + (a.horario_titulo || 'Libre') + '</td><td>' + a.metodo + '</td><td><span class="' + (ok ? 'pill-ok' : 'pill-bad') + '">' + a.estado_validacion + '</span></td><td>' + new Date(a.fecha_hora).toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'}) + '</td></tr>';
+        }).join('') || '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:12px;">Sin lecturas QR aún.</td></tr>';
+      } catch (e) { toast('Error cargando accesos: ' + e.message); }
+    }
+
+    function renderTabla() {
+      var q = document.getElementById('qSearch').value.toLowerCase();
+      var list = alumnos.filter(function(a) {
+        if (tab === 'hab' && a.acceso_habilitado === false) return false;
+        if (tab === 'bloq' && a.acceso_habilitado !== false) return false;
+        if (tab === 'venc' && a.estado_membresia === 'activa') return false;
+        if (q && !(a.nombre + ' ' + (a.apellido_paterno || '') + ' ' + a.dni).toLowerCase().includes(q)) return false;
+        return true;
+      });
+      document.getElementById('tbodyAcc').innerHTML = list.map(function(a) {
+        var hab = a.acceso_habilitado !== false;
+        return '<tr class="' + (a.id === selectedId ? 'row-sel' : '') + '" onclick="seleccionar(' + a.id + ')">' +
+          '<td><strong>' + a.nombre + ' ' + (a.apellido_paterno || '') + '</strong><div style="font-size:11px;color:#6b7280;">DNI ' + a.dni + '</div></td>' +
+          '<td>' + (a.sede_nombre || 'Sede') + '</td>' +
+          '<td>' + (a.estado_membresia || 'sin plan') + '</td>' +
+          '<td><span class="' + (hab ? 'pill-ok' : 'pill-bad') + '">' + (hab ? 'HABILITADO' : 'BLOQUEADO') + '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function seleccionar(id) {
+      selectedId = id;
+      var a = alumnos.find(function(x){ return x.id === id; });
+      if (!a) return;
+      renderTabla();
+      var hab = a.acceso_habilitado !== false;
+      document.getElementById('sidePanel').innerHTML =
+        '<div class="card-title"><span>🔑 ' + a.nombre + ' ' + (a.apellido_paterno || '') + '</span></div>' +
+        '<div style="text-align:center;margin:10px 0;">' + renderQrSvg(a.qr_token || ('QR-' + a.id), 120) + '<div style="font-family:monospace;font-size:11px;margin-top:4px;">' + (a.qr_token || '—') + '</div></div>' +
+        '<div style="font-size:12.5px;margin-bottom:12px;">' +
+          '<div><strong>Sede:</strong> ' + (a.sede_nombre || 'Sede Surco') + '</div>' +
+          '<div><strong>Plan:</strong> ' + (a.plan_nombre || 'Sin plan activo') + '</div>' +
+          '<div><strong>Vence:</strong> ' + (a.fecha_fin_membresia ? String(a.fecha_fin_membresia).slice(0,10) : '—') + '</div>' +
+        '</div>' +
+        (hab
+          ? '<button class="btn btn-bad" onclick="setAcceso(' + a.id + ', false)">🚫 Bloquear Acceso QR en Sede</button>'
+          : '<button class="btn btn-ok" onclick="setAcceso(' + a.id + ', true)">✅ Habilitar Acceso QR en Sede</button>');
+    }
+
+    async function setAcceso(id, hab) {
+      try {
+        var r = await fetch(API_BASE + '/api/alumnos/' + id + '/acceso', {
+          method: 'PUT',
+          headers: apiHeaders(),
+          body: JSON.stringify({ acceso_habilitado: hab })
+        });
+        if (!r.ok) throw new Error('No se pudo actualizar acceso');
+        toast(hab ? '✅ Acceso QR habilitado' : '🚫 Acceso QR bloqueado');
+        cargar();
+      } catch (e) { toast('❌ ' + e.message); }
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2600);
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
+

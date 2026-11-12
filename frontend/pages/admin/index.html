@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard BI y Rentabilidad — Forca &amp; Fitness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1f2937;}
+    nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{background:#0d2d5e;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+    .logo-text h1{font-size:13px;font-weight:700;color:#0d2d5e;}
+    .logo-text p{font-size:10px;color:#9ca3af;}
+    .nav-links{display:flex;gap:4px;overflow-x:auto;}
+    .nav-links a{padding:8px 11px;font-size:12.5px;font-weight:500;color:#6b7280;text-decoration:none;white-space:nowrap;}
+    .nav-links a.active{color:#0d2d5e;font-weight:700;border-bottom:2px solid #0d2d5e;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:34px;height:34px;background:#0d2d5e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:#9ca3af;}
+    main{max-width:1240px;margin:0 auto;padding:24px 28px;}
+    .head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+    .page-title{font-size:24px;font-weight:800;color:#0d2d5e;}
+    .page-sub{font-size:13px;color:#6b7280;margin-top:3px;}
+    select{border:1.5px solid #cbd5e1;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;background:#fff;}
+    .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+    .kpi{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;}
+    .kpi-label{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;}
+    .kpi-val{font-size:22px;font-weight:800;color:#0d2d5e;margin:6px 0 3px;}
+    .kpi-sub{font-size:11.5px;color:#6b7280;}
+    .cols{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin-bottom:18px;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .card-title{font-size:15px;font-weight:700;color:#0d2d5e;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;padding:8px 10px;background:#f8fafc;color:#6b7280;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}
+    td{padding:10px;border-bottom:1px solid #f3f4f6;}
+    .bar-bg{height:9px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-top:5px;}
+    .bar-fill{height:100%;background:linear-gradient(90deg,#0d2d5e,#2563eb);}
+    .quick-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
+    .qlink{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:12px;text-decoration:none;color:#0d2d5e;font-size:12.5px;font-weight:700;display:block;}
+    .qlink:hover{border-color:#0d2d5e;background:#eff6ff;}
+    .ev-item{padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:12px;display:flex;justify-content:space-between;gap:10px;}
+    .ev-topic{font-family:monospace;font-weight:700;color:#1e40af;background:#eff6ff;padding:2px 6px;border-radius:5px;font-size:11px;}
+    footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;margin-top:20px;}
+    @media (max-width:980px){.kpis{grid-template-columns:1fr 1fr;}.cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-box">F&amp;F</div>
+      <div class="logo-text"><h1>FORCA &amp; FITNESS</h1><p>APU4 · BACKOFFICE DIRECTIVO &amp; BI</p></div>
+    </div>
+    <div class="nav-links" id="navLinks"></div>
+    <div class="nav-right">
+      <div class="avatar" id="navAvatar">--</div>
+      <div class="user-info">
+        <div class="name" id="navNombre">—</div>
+        <div class="role" id="navRol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#9ca3af;padding:4px 8px;">Salir</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="head-row">
+      <div>
+        <h1 class="page-title">Cuadro de Mando Integral y Rentabilidad / m²</h1>
+        <p class="page-sub">Consolidado ejecutivo de sedes Surco, La Molina y San Borja (CMM2 Analítica Directiva).</p>
+      </div>
+      <select id="selSede" onchange="cargarKpis()">
+        <option value="">Todas las Sedes (Consolidado)</option>
+      </select>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-label">Ingresos Conciliados</div><div class="kpi-val" id="kIng">S/ 0.00</div><div class="kpi-sub">Pagos aprobados</div></div>
+      <div class="kpi"><div class="kpi-label">Ticket Promedio</div><div class="kpi-val" id="kTick">S/ 0.00</div><div class="kpi-sub">Por transacción</div></div>
+      <div class="kpi"><div class="kpi-label">LTV Estimado</div><div class="kpi-val" id="kLtv">S/ 0.00</div><div class="kpi-sub">5.2 ciclos promedio</div></div>
+      <div class="kpi"><div class="kpi-label">Tasa de Churn</div><div class="kpi-val" id="kChurn">0%</div><div class="kpi-sub" id="kChurnSub">—</div></div>
+      <div class="kpi"><div class="kpi-label">Ocupación Tatamis</div><div class="kpi-val" id="kOcc">0%</div><div class="kpi-sub">Tope 18 alumnos/tatami</div></div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <div class="card-title"><span>🏢 Rentabilidad por m² por Sede</span><span style="font-size:12px;color:#6b7280;" id="cohorteResumen">—</span></div>
+        <table>
+          <thead><tr><th>Sede</th><th>Área Tatami</th><th>Alumnos</th><th>Ingresos</th><th>Rentab. / m²</th></tr></thead>
+          <tbody id="tbodySedes"><tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:16px;">Calculando...</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🥋 Distribución por Disciplina</span></div>
+        <div id="discBars">Cargando...</div>
+        <div style="margin-top:18px;">
+          <div style="font-size:13px;font-weight:700;color:#0d2d5e;margin-bottom:8px;">Accesos Directos Operativos</div>
+          <div class="quick-links">
+            <a class="qlink" href="tesoreria.html">💰 Conciliar Pagos SUNAT</a>
+            <a class="qlink" href="inventario.html">📦 Kárdex &amp; Talleres</a>
+            <a class="qlink" href="../pos/index.html">🛒 Abrir Terminal POS</a>
+            <a class="qlink" href="../staff/index.html">📱 App Staff Tatami</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <div class="card-title"><span>📅 Ocupación en Vivo de Clases (Hoy)</span></div>
+        <table>
+          <thead><tr><th>Sede</th><th>Clase</th><th>Horario</th><th>Cupos</th><th>%</th></tr></thead>
+          <tbody id="tbodyHorarios"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>⚡ Event Bus de Dominio (Kafka Log)</span></div>
+        <div id="eventosBox" style="max-height:280px;overflow-y:auto;">Cargando eventos...</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Forca &amp; Fitness S.A.C. · CMM2 Analítica Directiva &amp; BI</footer>
+
+  <script src="../auth.js"></script>
+  <script src="../widget-ia.js"></script>
+  <script>
+    var usuario = requireRol(['Director', 'Tesorero', 'Recepcionista']);
+    if (usuario) initNav('index.html');
+
+    async function cargarSedes() {
+      try {
+        var r = await fetch(API_BASE + '/api/sedes');
+        var sedes = await r.json();
+        document.getElementById('selSede').innerHTML = '<option value="">Todas las Sedes (Consolidado)</option>' +
+          sedes.map(function(s){ return '<option value="' + s.id + '">' + s.nombre + '</option>'; }).join('');
+      } catch {}
+    }
+
+    async function cargarKpis() {
+      var sid = document.getElementById('selSede').value;
+      try {
+        var res = await fetch(API_BASE + '/api/analitica/kpis' + (sid ? '?sede_id=' + sid : ''), { headers: apiHeaders() });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Error cargando KPIs');
+
+        var r = d.resumen || {};
+        document.getElementById('kIng').textContent = 'S/ ' + Number(r.ingresos_totales || 0).toFixed(2);
+        document.getElementById('kTick').textContent = 'S/ ' + Number(r.ticket_promedio || 0).toFixed(2);
+        document.getElementById('kLtv').textContent = 'S/ ' + Number(r.ltv_estimado || 0).toFixed(2);
+        document.getElementById('kChurn').textContent = Number(r.churn_rate_pct || 0).toFixed(1) + '%';
+        document.getElementById('kChurnSub').textContent = (r.vencidos || 0) + ' venc. / ' + (r.prox_vencer || 0) + ' por vencer';
+        document.getElementById('kOcc').textContent = Number(r.ocupacion_tatami_pct || 0).toFixed(1) + '%';
+        document.getElementById('cohorteResumen').textContent = (r.activos || 0) + ' activos · ' + (r.total_alumnos || 0) + ' alumnos';
+
+        document.getElementById('tbodySedes').innerHTML = (d.por_sede || []).map(function(s) {
+          return '<tr><td><strong>' + s.sede + '</strong></td><td>' + s.area_m2 + ' m²</td><td>' + s.alumnos + '</td><td>S/ ' + Number(s.ingresos).toFixed(2) + '</td><td><strong>S/ ' + Number(s.rentabilidad_m2).toFixed(2) + '/m²</strong></td></tr>';
+        }).join('');
+
+        var maxD = Math.max(1, ...(d.por_disciplina || []).map(function(x){ return x.cantidad; }));
+        document.getElementById('discBars').innerHTML = (d.por_disciplina || []).map(function(x) {
+          var w = Math.round((x.cantidad / maxD) * 100);
+          return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;"><span>' + x.disciplina + '</span><span>' + x.cantidad + ' alumnos</span></div><div class="bar-bg"><div class="bar-fill" style="width:' + w + '%"></div></div></div>';
+        }).join('') || '<div style="color:#9ca3af;font-size:12px;">Sin datos</div>';
+
+        document.getElementById('tbodyHorarios').innerHTML = (d.horarios_ocupacion || []).map(function(h) {
+          var max = h.aforo_maximo || 18;
+          var pct = Math.round(((h.ocupados || 0) / max) * 100);
+          return '<tr><td>' + h.sede_nombre + '</td><td><strong>' + h.titulo + '</strong></td><td>' + h.hora_inicio + '</td><td>' + (h.ocupados || 0) + '/' + max + '</td><td>' + pct + '%</td></tr>';
+        }).join('');
+
+        document.getElementById('eventosBox').innerHTML = (d.eventos_recientes || []).map(function(ev) {
+          return '<div class="ev-item"><div><span class="ev-topic">' + ev.topico + '</span><div style="color:#6b7280;margin-top:2px;">' + ev.origen + '</div></div><div style="font-size:11px;color:#9ca3af;">' + new Date(ev.created_at).toLocaleTimeString('es-PE') + '</div></div>';
+        }).join('') || '<div style="color:#9ca3af;font-size:12px;">Sin eventos aún.</div>';
+      } catch (e) { console.error(e); }
+    }
+
+    cargarSedes().then(cargarKpis);
+  </script>
+</body>
+</html>
+
