@@ -73,8 +73,8 @@
           <div class="fgroup">
             <label>Género</label>
             <select id="fGen">
-              <option value="M">Masculino</option>
-              <option value="F">Femenino</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
               <option value="Otro">Otro / Prefiero no decir</option>
             </select>
           </div>
@@ -86,7 +86,7 @@
         <div class="card-title">🔐 Cambiar Contraseña (Opcional)</div>
         <div class="grid2">
           <div class="fgroup"><label>Contraseña Actual</label><input type="password" id="fPassAct" placeholder="Sólo si deseas cambiarla"/></div>
-          <div class="fgroup"><label>Nueva Contraseña</label><input type="password" id="fPassNew" placeholder="Mínimo 6 caracteres"/></div>
+          <div class="fgroup"><label>Nueva Contraseña</label><input type="password" id="fPassNew" minlength="8" placeholder="Mínimo 8 caracteres"/></div>
         </div>
       </div>
 
@@ -134,7 +134,8 @@
         document.getElementById('fDni').value = me.dni || '';
         document.getElementById('fTel').value = me.telefono || '';
         document.getElementById('fNac').value = me.fecha_nacimiento ? String(me.fecha_nacimiento).slice(0, 10) : '';
-        document.getElementById('fGen').value = me.genero || 'M';
+        var gNorm = me.genero === 'M' ? 'Masculino' : me.genero === 'F' ? 'Femenino' : (me.genero || 'Masculino');
+        document.getElementById('fGen').value = gNorm;
         document.getElementById('fDir').value = me.direccion || '';
         if (me.consentimiento_lpdp) {
           document.getElementById('tNombre').value = me.consentimiento_lpdp.apoderado_nombre || '';
@@ -195,7 +196,8 @@
         }
 
         if (d.usuario) {
-          var updated = Object.assign({}, usuario, { nombre: d.usuario.nombre_completo || (payload.nombre + ' ' + payload.apellido_paterno), dni: d.usuario.dni });
+          var fullName = [d.usuario.nombre, d.usuario.apellido_paterno, d.usuario.apellido_materno].filter(Boolean).join(' ');
+          var updated = Object.assign({}, usuario, { nombre: fullName, dni: d.usuario.dni });
           localStorage.setItem('usuario', JSON.stringify(updated));
         }
 

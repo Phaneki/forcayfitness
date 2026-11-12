@@ -68,10 +68,11 @@ const NAV_CONFIG = {
     { href: '../admin/index.html', label: '📊 Dashboard BI' },
     { href: '../admin/alumnos.html', label: '👥 Alumnos' },
     { href: '../admin/tesoreria.html', label: '💰 Tesorería' },
-    { href: '../admin/inventario.html', label: '📦 Inventario AFF' },
+    { href: '../admin/inventario.html', label: '📦 Inventario' },
     { href: '../admin/control_acceso.html', label: '🛡 Acceso' },
     { href: '../admin/seguridad-dvr.html', label: '📹 DVR' },
     { href: '../admin/crm-retencion.html', label: '🎯 CRM' },
+    { href: '../portal/perfil.html', label: '👤 Perfil' },
   ],
   default: [{ href: '../portal/perfil.html', label: '👤 Mi Perfil' }],
 };
@@ -106,20 +107,35 @@ function _hasSession() {
 function requireRol(rolesPermitidos) {
   if (!_hasSession()) {
     location.href = '../auth/login.html';
-    return;
+    return null;
   }
+  const usuario = _getUsuario();
   if (rolesPermitidos && rolesPermitidos.length > 0) {
-    const usuario = _getUsuario();
     const rol = _normalizeRole(usuario.rol);
     const permitido = rolesPermitidos.some((r) => _normalizeRole(r) === rol);
     if (!permitido) {
       alert('No tienes permiso para acceder a esta sección.');
       location.href = _homeForRole(rol);
+      return null;
     }
   }
+  return usuario;
 }
 
-function initNav() {
+function initNav(activeOverride) {
+  if (!document.getElementById('ff-nav-layout-style')) {
+    var navCss = document.createElement('style');
+    navCss.id = 'ff-nav-layout-style';
+    navCss.textContent =
+      'nav{gap:14px;}' +
+      '.nav-logo,.nav-right{flex-shrink:0;}' +
+      '.nav-links{flex:1;min-width:0;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;}' +
+      '.nav-links::-webkit-scrollbar{display:none;}' +
+      '.nav-links a{flex-shrink:0;white-space:nowrap;}' +
+      '@media (max-width:1020px){nav{padding:10px 16px!important;height:auto!important;flex-wrap:wrap;}.nav-links{order:3;flex-basis:100%;width:100%;border-top:1px solid #f3f4f6;padding-top:6px;margin-top:6px;}}';
+    document.head.appendChild(navCss);
+  }
+
   const usuario = _getUsuario();
   const rolRaw = (usuario.rol || '').trim();
   const rolNorm = _normalizeRole(rolRaw);
@@ -130,15 +146,28 @@ function initNav() {
   if (navLinksEl) {
     navLinksEl.innerHTML = links
       .map(function (l) {
-        var activo = paginaActual === new URL(l.href, location.href).pathname ? ' active' : '';
-        return '<a href="' + l.href + '" class="' + activo.trim() + '">' + l.label + '</a>';
+        var targetPath = new URL(l.href, location.href).pathname;
+        var esActivo = activeOverride
+          ? targetPath.endsWith('/' + activeOverride) || l.href.endsWith('/' + activeOverride)
+          : paginaActual === targetPath;
+        return '<a href="' + l.href + '" class="' + (esActivo ? 'active' : '') + '">' + l.label + '</a>';
       })
       .join('');
   }
 
+  var avatarEl = document.getElementById('navAvatar');
+  if (avatarEl) {
+    avatarEl.style.cursor = 'pointer';
+    avatarEl.title = 'Ver Mi Perfil';
+    if (!avatarEl.getAttribute('onclick')) {
+      avatarEl.onclick = function () {
+        location.href = '../portal/perfil.html';
+      };
+    }
+  }
+
   if (usuario.nombre) {
     var ini = usuario.nombre.substring(0, 2).toUpperCase();
-    var avatarEl = document.getElementById('navAvatar');
     var nombreEl = document.getElementById('navNombre');
     var rolEl = document.getElementById('navRol');
     if (avatarEl) avatarEl.textContent = ini;
@@ -149,8 +178,8 @@ function initNav() {
     }
   }
 
-  // Cargar Widget IA 24/7 (APU5) en portal de alumnos
-  if (rolNorm === 'alumno' && !document.getElementById('forca-ia-widget-script')) {
+  // Cargar Widget IA 24/7 (APU5) si aún no está presente
+  if (rolNorm === 'alumno' && !document.getElementById('forca-ia-widget-script') && !document.querySelector('script[src*="widget-ia.js"]')) {
     var sc = document.createElement('script');
     sc.id = 'forca-ia-widget-script';
     sc.src = '../widget-ia.js';
