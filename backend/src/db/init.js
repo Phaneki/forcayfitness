@@ -63,7 +63,7 @@ async function initDatabase(customPool) {
   for (const r of sedesRes.rows) sedeMap[r.codigo] = r.id;
 
   // 2. Usuarios (5 roles exactos del diagrama)
-  const pwdHash = bcrypt.hashSync('Forca2026!', 10);
+  const pwdHash = bcrypt.hashSync('Forca2025!', 10);
   const usersData = [
     // Directores
     ['Faridh', 'Cruz', 'Mendoza', '44112233', 'director@forcafitness.pe', 'Director', sedeMap.SURCO, 'Brazilian Jiu-Jitsu', '991234560', 'Av. Surco 450', '1988-05-14', 'Masculino', false, 'Cinturón Negro 2° Dan', true, true, '123456', 'QR-DIR-001', 90],
