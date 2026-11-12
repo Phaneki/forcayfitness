@@ -170,6 +170,9 @@
     var actualComprobanteId = null;
     var ultimoPago = null;
     try { ultimoPago = JSON.parse(localStorage.getItem('ultimoPago') || 'null'); } catch {}
+    var urlParams = new URLSearchParams(window.location.search);
+    var mpExternalRef = urlParams.get('external_reference');
+    var mpStatus = urlParams.get('collection_status') || urlParams.get('status');
 
     function fmt(n) { return 'S/ ' + Number(n || 0).toFixed(2); }
 
@@ -213,16 +216,33 @@
       document.getElementById('btnXml').style.display = actualComprobanteId ? 'inline-flex' : 'none';
     }
 
-    async function cargarHistorial() {
+    async function cargarHistorial(intento) {
+      intento = intento || 0;
       try {
         var res = await fetch(API_BASE + '/api/comprobantes', { headers: apiHeaders() });
         var rows = await res.json();
-        if (!Array.isArray(rows) || !rows.length) {
+        if (!Array.isArray(rows)) rows = [];
+
+        var matchMp = mpExternalRef ? rows.find(function(x){ return String(x.pago_id) === String(mpExternalRef); }) : null;
+        if (mpExternalRef && mpStatus === 'approved' && !matchMp && intento < 5) {
+          if (ultimoPago) renderUltimo(null);
+          document.getElementById('badgeEstado').textContent = 'CONCILIANDO MERCADO PAGO...';
+          document.getElementById('recCdrMsg').textContent = 'Confirmando notificación webhook de Mercado Pago para emitir tu comprobante SUNAT UBL 2.1...';
+          setTimeout(function(){ cargarHistorial(intento + 1); }, 1200);
+          return;
+        }
+
+        if (!rows.length) {
           document.getElementById('tbodyComprobantes').innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:18px;">Aún no tienes comprobantes electrónicos emitidos.</td></tr>';
           if (ultimoPago) renderUltimo(null);
           return;
         }
-        if (!ultimoPago) {
+        if (matchMp) {
+          if (!ultimoPago) ultimoPago = {};
+          ultimoPago.estado = 'aprobado';
+          ultimoPago.comprobante = matchMp;
+          renderUltimo(matchMp);
+        } else if (!ultimoPago) {
           renderUltimo(rows[0]);
         } else {
           renderUltimo(ultimoPago.comprobante || rows.find(function(x){ return x.pago_id === ultimoPago.id; }) || null);

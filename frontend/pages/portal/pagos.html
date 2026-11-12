@@ -236,6 +236,12 @@
         }));
         localStorage.removeItem('ordenCheckout');
 
+        if (data.checkout_url) {
+          toast('🔄 Redirigiendo a Mercado Pago Checkout Pro...');
+          setTimeout(function() { window.location.href = data.checkout_url; }, 600);
+          return;
+        }
+
         toast(data.estado === 'aprobado' ? '✅ ¡Pago conciliado y Boleta/Factura emitida!' : '⏳ Pago pendiente de validación en Tesorería');
         setTimeout(function() { location.href = 'comprobante.html'; }, 1000);
       } catch (e) {
@@ -243,6 +249,10 @@
         btn.textContent = 'Confirmar y Emitir Comprobante →';
         toast('❌ ' + e.message);
       }
+    }
+
+    if (new URLSearchParams(window.location.search).get('mp_status') === 'failure') {
+      setTimeout(function() { toast('⚠️ El pago en Mercado Pago fue cancelado o rechazado. Puedes intentarlo de nuevo.'); }, 300);
     }
 
     function toast(msg) {
