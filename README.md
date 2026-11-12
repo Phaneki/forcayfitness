@@ -45,19 +45,19 @@ Sistema integral de gestión para **Forca & Fitness S.A.C.** (3 sedes en Lima: *
 
 ---
 
-## Credenciales Demo (Semilla Idempotente)
+## Credenciales de Prueba por Rol (Semilla Idempotente)
 
-Todas las cuentas de prueba utilizan la contraseña **`Forca2025!`**:
+Todas las cuentas de prueba utilizan la contraseña **`Forca2026!`** (también disponibles con 1 clic en la pantalla de Login):
 
-| Rol | Correo | Detalles |
-|---|---|---|
-| **Director** | `director@forcafitness.pe` | 2FA PIN opcional: `123456` |
-| **Tesorero** | `tesorero@forcafitness.pe` | Conciliación SUNAT y Planilla |
-| **Profesor** | `profesor@forcafitness.pe` | Staff PWA Tatami (`Sede Surco`) |
-| **Recepcionista** | `recepcion@forcafitness.pe` | Terminal POS y Despacho Combo |
-| **Alumno (Activo)** | `alumno@forcafitness.pe` | QR: `QR-ALU-0001` |
-| **Alumno (Vencido)** | `diego.torres@forcafitness.pe` | Ideal para probar bloqueo y renovación |
-| **Alumno (Menor LPDP)** | `sofia.castro@forcafitness.pe` | Con consentimiento firmado |
+| Rol | Correo | Contraseña | Sede | Detalles |
+|---|---|---|---|---|
+| **Director** | `director@forcafitness.pe` | `Forca2026!` | Sede Surco | Backoffice BI, DVR y CRM (2FA PIN opcional: `123456`) |
+| **Tesorero** | `tesorero@forcafitness.pe` | `Forca2026!` | Sede Surco | Conciliación SUNAT UBL 2.1 y Planilla |
+| **Profesor** | `profesor@forcafitness.pe` | `Forca2026!` | Sede Surco | Staff PWA Tatami (`Brazilian Jiu-Jitsu`) |
+| **Recepcionista** | `recepcion@forcafitness.pe` | `Forca2026!` | Sede Surco | Terminal POS, Despacho Combo AFF y Arqueo |
+| **Alumno** | `alumno@forcafitness.pe` | `Forca2026!` | Sede Surco | Portal Web · QR: `QR-ALU-0001` (Membresía activa) |
+
+> **Nota:** La semilla también incluye otros usuarios multi-sede en `backend/src/db/init.js` (como `diego.torres@forcafitness.pe` con membresía vencida y `sofia.castro@forcafitness.pe` menor con LPDP). Los alumnos registrados desde POS/Admin reciben clave `Forca` + los últimos 4 dígitos de su DNI.
 
 ---
 
