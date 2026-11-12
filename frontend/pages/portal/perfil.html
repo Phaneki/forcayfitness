@@ -194,7 +194,7 @@
       try {
         var [resMe, resMat] = await Promise.all([
           fetch(API_BASE + '/api/usuarios/me', { headers: apiHeaders() }),
-          fetch(API_BASE + '/api/matriculas', { headers: apiHeaders() })
+          fetch(API_BASE + '/api/matriculas?usuario_id=' + usuario.id, { headers: apiHeaders() })
         ]);
         meData = await resMe.json();
         if (!resMe.ok) throw new Error(meData.error || 'Error cargando perfil');
@@ -203,7 +203,7 @@
         var ini = (meData.nombre || 'FF').slice(0, 2).toUpperCase();
         document.getElementById('heroAvatar').textContent = ini;
         document.getElementById('heroNombre').textContent = full;
-        document.getElementById('heroMeta').textContent = (meData.sede || 'Sede Surco') + ' · ' + (meData.disciplina || 'BJJ') + ' · Grado: ' + (meData.grado_actual || 'En evaluación');
+        document.getElementById('heroMeta').textContent = (meData.rol || 'Alumno') + ' · ' + (meData.sede || 'Sede Surco') + ' · ' + (meData.disciplina || 'BJJ') + ' · Grado: ' + (meData.grado_actual || 'En evaluación');
 
         var acc = document.getElementById('badgeAcceso');
         acc.textContent = meData.acceso_habilitado !== false ? 'ACCESO QR HABILITADO' : 'ACCESO BLOQUEADO';
@@ -244,7 +244,14 @@
           : '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Sin ascensos registrados aún.</td></tr>';
 
         var mats = await resMat.json();
-        if (Array.isArray(mats) && mats.length) {
+        if (String(meData.rol || '').toLowerCase() !== 'alumno') {
+          document.getElementById('membresiaBox').innerHTML =
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<span>Cuenta Staff · <strong>' + meData.rol + '</strong> (' + (meData.sede || 'Multisede') + ')</span>' +
+              '<span class="badge badge-ok">STAFF ACTIVO</span>' +
+            '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-top:6px;">Tu credencial QR tiene acceso operativo habilitado en sede.</div>';
+        } else if (Array.isArray(mats) && mats.length) {
           var m = mats[0];
           var fin = new Date(m.fecha_fin);
           var dias = Math.max(0, Math.ceil((fin - new Date()) / 86400000));
