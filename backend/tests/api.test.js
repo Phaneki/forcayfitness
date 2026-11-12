@@ -498,3 +498,124 @@ test('9. Todas las pantallas frontend APU1..APU5 y assets PWA se sirven con HTTP
     assert.ok(r.raw.length > 50, `Ruta estática ${p} no debe estar vacía`);
   }
 });
+
+test('10. Mercado Pago Checkout Pro + Validación Webhook x-signature HMAC-SHA256 + Idempotencia', async () => {
+  const crypto = require('crypto');
+  const origFetch = global.fetch;
+  const prevEnv = {
+    MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN,
+    MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET,
+    APP_BASE_URL: process.env.APP_BASE_URL,
+  };
+
+  process.env.MP_ACCESS_TOKEN = 'TEST-mock-mp-token';
+  process.env.MP_WEBHOOK_SECRET = 'secreto_mp_test_2026';
+  process.env.APP_BASE_URL = 'https://forca-test.onrender.com';
+
+  let createdPagoId = null;
+
+  global.fetch = async (url, init) => {
+    const u = String(url);
+    if (u === 'https://api.mercadopago.com/checkout/preferences') {
+      const body = JSON.parse(init.body);
+      createdPagoId = body.external_reference;
+      return {
+        ok: true,
+        status: 201,
+        json: async () => ({
+          id: 'pref-mp-123',
+          sandbox_init_point: 'https://sandbox.mercadopago.com.pe/checkout/v1/redirect?pref_id=pref-mp-123',
+          init_point: 'https://www.mercadopago.com.pe/checkout/v1/redirect?pref_id=pref-mp-123',
+        }),
+      };
+    }
+    if (u.startsWith('https://api.mercadopago.com/v1/payments/')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          id: 987654321,
+          status: 'approved',
+          external_reference: String(createdPagoId),
+        }),
+      };
+    }
+    throw new Error(`Fetch inesperado en test MP: ${u}`);
+  };
+
+  try {
+    const alu = await req('/api/auth/login', {
+      method: 'POST',
+      body: { email: 'alumno@forcafitness.pe', password: 'Forca2026!' },
+    });
+    assert.equal(alu.status, 200);
+
+    // 1. Crear pago -> debe retornar checkout_url y quedar pendiente hasta recibir webhook
+    const payRes = await req('/api/pagos', {
+      method: 'POST',
+      token: alu.data.token,
+      body: {
+        monto: 400,
+        concepto: 'Plan Trimestral Multisede MP',
+        medio_pago: 'tarjeta',
+        tipo_comprobante: 'Boleta',
+        plan_codigo: 'TRIMESTRAL',
+        disciplina: 'Brazilian Jiu-Jitsu',
+        sede_id: 1,
+      },
+    });
+    assert.equal(payRes.status, 201);
+    assert.equal(payRes.data.estado, 'pendiente');
+    assert.ok(payRes.data.checkout_url.includes('sandbox.mercadopago.com.pe'));
+
+    // 2. Webhook con firma inválida -> 401
+    const badWhk = await req('/api/pagos/webhook?data.id=987654321&type=payment', {
+      method: 'POST',
+      headers: {
+        'x-request-id': 'req-mp-1',
+        'x-signature': 'ts=1700000000,v1=0000000000000000000000000000000000000000000000000000000000000000',
+      },
+      body: { type: 'payment', data: { id: '987654321' } },
+    });
+    assert.equal(badWhk.status, 401);
+
+    // 3. Webhook con firma HMAC-SHA256 válida -> aprueba pago y emite UBL 2.1
+    const ts = '1762920000';
+    const reqId = 'req-mp-2';
+    const dataId = '987654321';
+    const manifest = `id:${dataId};request-id:${reqId};ts:${ts};`;
+    const v1 = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(manifest).digest('hex');
+
+    const okWhk = await req(`/api/pagos/webhook?data.id=${dataId}&type=payment`, {
+      method: 'POST',
+      headers: {
+        'x-request-id': reqId,
+        'x-signature': `ts=${ts},v1=${v1}`,
+      },
+      body: { type: 'payment', data: { id: dataId } },
+    });
+    assert.equal(okWhk.status, 200);
+    assert.equal(okWhk.data.ok, true);
+    assert.equal(okWhk.data.idempotent, false);
+    assert.equal(okWhk.data.pago.estado, 'aprobado');
+    assert.ok(okWhk.data.comprobante.serie_numero.startsWith('B001-'));
+
+    // 4. Reintento idempotente del mismo webhook -> 200 con idempotent: true
+    const dupWhk = await req(`/api/pagos/webhook?data.id=${dataId}&type=payment`, {
+      method: 'POST',
+      headers: {
+        'x-request-id': reqId,
+        'x-signature': `ts=${ts},v1=${v1}`,
+      },
+      body: { type: 'payment', data: { id: dataId } },
+    });
+    assert.equal(dupWhk.status, 200);
+    assert.equal(dupWhk.data.idempotent, true);
+  } finally {
+    global.fetch = origFetch;
+    for (const [k, v] of Object.entries(prevEnv)) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+  }
+});
